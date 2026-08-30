@@ -53,8 +53,18 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: '3.12'
-      - name: Verify runner Ruby
-        run: ruby --version
+      - name: Install Ruby when absent
+        run: |
+          if ! command -v ruby >/dev/null 2>&1; then
+            if command -v sudo >/dev/null 2>&1; then
+              sudo apt-get update
+              sudo apt-get install --yes ruby
+            else
+              apt-get update
+              apt-get install --yes ruby
+            fi
+          fi
+          ruby --version
       - name: Check Ruby syntax
         run: ruby -c Formula/victor.rb
       - name: Run formula release-contract tests
