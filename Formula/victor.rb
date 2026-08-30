@@ -5,9 +5,9 @@ class Victor < Formula
   include Language::Python::Virtualenv
 
   desc "Enterprise-Ready AI Coding Assistant - Any model, any provider"
-  homepage "https://github.com/vjsingh1984/victor"
-  url "https://files.pythonhosted.org/packages/source/v/victor-ai/victor_ai-0.2.0.tar.gz"
-  sha256 "b1e7e64070728fdb51515656b2c50433b6520b25138739e9459c282c6a00312e"
+  homepage "https://github.com/anvai-labs/victor"
+  url "https://files.pythonhosted.org/packages/e1/4d/786bf9827f31ca6e186a6480306484006e5574573ae28f8eaad8ce9189a0/victor_ai-0.9.0.tar.gz"
+  sha256 "d2e46ee357cb68cf86b87045f7acea4194f4cff54a99e4d5e1c141a37a7a99f2"
   license "Apache-2.0"
 
   depends_on "python@3.12"
