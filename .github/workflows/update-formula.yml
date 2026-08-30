@@ -1,126 +1,77 @@
-# Auto-update Victor formula when new releases are published
-# Uses PyPI API polling - no cross-repo tokens needed
 name: Update Formula
 
 on:
-  # Check for new releases every 6 hours
   schedule:
     - cron: '0 */6 * * *'
-  # Manual trigger
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to update to (e.g., 0.2.0). Leave empty to auto-detect latest.'
+        description: Optional exact PyPI version; defaults to latest
         required: false
         type: string
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
-  check-and-update:
+  update:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - name: Get latest PyPI version
-        id: latest
+      - name: Resolve release metadata from PyPI
+        id: release
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
         run: |
-          if [ -n "${{ github.event.inputs.version }}" ]; then
-            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
-            echo "Using manual version: ${{ github.event.inputs.version }}"
-          else
-            # Get latest version from PyPI API (more reliable than GitHub releases)
-            VERSION=$(curl -s https://pypi.org/pypi/victor-ai/json | jq -r '.info.version')
-            if [ "$VERSION" = "null" ] || [ -z "$VERSION" ]; then
-              echo "Failed to get version from PyPI"
-              exit 1
-            fi
-            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-            echo "Latest PyPI version: $VERSION"
-          fi
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
 
-      - name: Get current formula version
-        id: current
+          with urllib.request.urlopen("https://pypi.org/pypi/victor-ai/json", timeout=20) as response:
+              project = json.load(response)
+          version = os.environ.get("REQUESTED_VERSION") or project["info"]["version"]
+          files = project["releases"].get(version, [])
+          sdist = next((item for item in files if item["packagetype"] == "sdist"), None)
+          if not sdist:
+              raise SystemExit(f"No sdist found on PyPI for victor-ai {version}")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"version={version}\n")
+              output.write(f"url={sdist['url']}\n")
+              output.write(f"sha256={sdist['digests']['sha256']}\n")
+          PY
+
+      - name: Update formula fields
+        env:
+          SDIST_URL: ${{ steps.release.outputs.url }}
+          SDIST_SHA256: ${{ steps.release.outputs.sha256 }}
         run: |
-          CURRENT=$(grep -oP 'victor_ai-\K[0-9.]+' Formula/victor.rb | head -1 || echo "0.0.0")
-          echo "VERSION=$CURRENT" >> $GITHUB_OUTPUT
-          echo "Current formula version: $CURRENT"
+          python - <<'PY'
+          import os
+          import re
+          from pathlib import Path
 
-      - name: Check if update needed
-        id: check
-        run: |
-          LATEST="${{ steps.latest.outputs.VERSION }}"
-          CURRENT="${{ steps.current.outputs.VERSION }}"
+          path = Path("Formula/victor.rb")
+          text = path.read_text(encoding="utf-8")
+          text = re.sub(r'^  homepage ".*"$', '  homepage "https://github.com/anvai-labs/victor"', text, flags=re.MULTILINE)
+          text = re.sub(r'^  url ".*"$', f'  url "{os.environ["SDIST_URL"]}"', text, flags=re.MULTILINE)
+          text = re.sub(r'^  sha256 ".*"$', f'  sha256 "{os.environ["SDIST_SHA256"]}"', text, flags=re.MULTILINE)
+          path.write_text(text, encoding="utf-8")
+          PY
 
-          if [ "$LATEST" != "$CURRENT" ] && [ -n "$LATEST" ] && [ "$LATEST" != "null" ]; then
-            echo "UPDATE=true" >> $GITHUB_OUTPUT
-            echo "Update needed: $CURRENT -> $LATEST"
-          else
-            echo "UPDATE=false" >> $GITHUB_OUTPUT
-            echo "No update needed (current: $CURRENT, latest: $LATEST)"
-          fi
+      - name: Validate generated formula
+        run: python -m unittest discover -s tests -v
 
-      - name: Download and compute SHA256
-        if: steps.check.outputs.UPDATE == 'true'
-        id: sha256
-        run: |
-          VERSION="${{ steps.latest.outputs.VERSION }}"
-          URL="https://files.pythonhosted.org/packages/source/v/victor-ai/victor_ai-${VERSION}.tar.gz"
-
-          echo "Downloading from: $URL"
-
-          # Download and compute SHA256
-          HTTP_CODE=$(curl -sI -o /dev/null -w "%{http_code}" "$URL")
-          if [ "$HTTP_CODE" != "200" ]; then
-            echo "Failed to download package (HTTP $HTTP_CODE)"
-            exit 1
-          fi
-
-          curl -sL "$URL" -o victor.tar.gz
-          SHA256=$(sha256sum victor.tar.gz | cut -d' ' -f1)
-          echo "SHA256=$SHA256" >> $GITHUB_OUTPUT
-          echo "Computed SHA256: $SHA256"
-
-      - name: Update formula
-        if: steps.check.outputs.UPDATE == 'true'
-        run: |
-          VERSION="${{ steps.latest.outputs.VERSION }}"
-          SHA256="${{ steps.sha256.outputs.SHA256 }}"
-
-          cat > Formula/victor.rb << EOF
-# typed: false
-# frozen_string_literal: true
-
-class Victor < Formula
-  include Language::Python::Virtualenv
-
-  desc "Enterprise-Ready AI Coding Assistant - Any model, any provider"
-  homepage "https://github.com/vjsingh1984/victor"
-  url "https://files.pythonhosted.org/packages/source/v/victor-ai/victor_ai-${VERSION}.tar.gz"
-  sha256 "${SHA256}"
-  license "Apache-2.0"
-
-  depends_on "python@3.12"
-
-  def install
-    virtualenv_install_with_resources
-  end
-
-  test do
-    assert_match "victor", shell_output("#{bin}/victor --version")
-  end
-end
-EOF
-
-          echo "Updated formula:"
-          cat Formula/victor.rb
-
-      - name: Commit and push
-        if: steps.check.outputs.UPDATE == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Formula/victor.rb
-          git diff --staged --quiet || git commit -m "Update victor to ${{ steps.latest.outputs.VERSION }}"
-          git push
+      - name: Open or update formula pull request
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        with:
+          branch: automation/update-victor-formula
+          delete-branch: true
+          commit-message: 'chore: update Victor formula to ${{ steps.release.outputs.version }}'
+          title: 'chore: update Victor formula to ${{ steps.release.outputs.version }}'
+          body: Automated PyPI release metadata and digest update. CI validates the downloaded archive before merge.
