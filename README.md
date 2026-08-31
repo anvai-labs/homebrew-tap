@@ -79,11 +79,13 @@ then replace `v${V}` in both URLs (the tag path and the tarball names) and set
 the two `sha256` lines (macOS sum first). Nothing else changes — brew detects
 the version from the URLs. The upstream automation
 (`anvai-labs/sentinelpass` release.yml → "Bump Homebrew formula" job, backed
-by `scripts/bump-homebrew-formula.sh`) performs exactly this bump, but skips
-until the `TAP_TOKEN` secret (fine-grained PAT with Contents:write on this
-repo) is configured on that repository; asset names are arch-unnamed
-(`-macos.tar.gz` is arm64-only), so until upstream renames them per-arch the
-formula cannot cover more platforms than these two tarballs.
+by `scripts/bump-homebrew-formula.sh`) performs exactly this bump, and
+`TAP_TOKEN` was configured on that repository on 2026-08-31 — the next
+sentinelpass release bumps this formula automatically. Keep the commands
+above: they are the fallback if the job skips again, and they double as the
+diff-shape check (they reproduce the bot's exact change). Asset names are
+arch-unnamed (`-macos.tar.gz` is arm64-only), so until upstream renames them
+per-arch the formula cannot cover more platforms than these two tarballs.
 
 `victor`: automatic — `update-formula.yml` polls PyPI every 6 hours (it rewrites only the
 sdist `url`/`sha256`). victor-ai itself is installed from that sdist; its dependency closure
