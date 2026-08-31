@@ -94,9 +94,11 @@ jobs:
       - uses: Homebrew/actions/setup-homebrew@23156a3d9674d7f52f74f1a58979ec4d77847166
       - name: Tap the checked-out formulas
         run: |
-          mkdir -p "$(brew --repository)/Library/Taps/anvai-labs"
-          git clone "$GITHUB_WORKSPACE" "$(brew --repository)/Library/Taps/anvai-labs/homebrew-tap"
-          git -C "$(brew --repository)/Library/Taps/anvai-labs/homebrew-tap" checkout -q "${{ env.CI_REF }}"
+          TAP_DIR="$(brew --repository)/Library/Taps/anvai-labs/homebrew-tap"
+          rm -rf "$TAP_DIR" || sudo rm -rf "$TAP_DIR"
+          mkdir -p "$(dirname "$TAP_DIR")"
+          git clone "$GITHUB_WORKSPACE" "$TAP_DIR"
+          git -C "$TAP_DIR" checkout -q "${{ env.CI_REF }}"
       - name: Audit every formula
         run: |
           brew audit --formula \
