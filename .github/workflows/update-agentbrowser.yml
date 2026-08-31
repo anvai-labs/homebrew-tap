@@ -1,0 +1,74 @@
+name: Update Agentbrowser Formula
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Agentbrowser release tag to publish (e.g. v1.4.1)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Compute SHA-256 for each platform binary
+        id: shas
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          base="https://github.com/anvai-labs/agentbrowser/releases/download/${TAG}"
+          i=0
+          for target in darwin-arm64 darwin-x64 linux-arm64 linux-x64; do
+            curl -fsSL "$base/agentbrowser-mcp-$target" -o ab.bin
+            echo "sha$i=$(sha256sum ab.bin | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+            i=$((i+1))
+          done
+
+      - name: Rewrite the formula version and checksums
+        env:
+          TAG: ${{ inputs.tag }}
+          SHA0: ${{ steps.shas.outputs.sha0 }}
+          SHA1: ${{ steps.shas.outputs.sha1 }}
+          SHA2: ${{ steps.shas.outputs.sha2 }}
+          SHA3: ${{ steps.shas.outputs.sha3 }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, pathlib, re
+          tag = os.environ["TAG"]
+          p = pathlib.Path("Formula/agentbrowser.rb")
+          s = p.read_text()
+          m = re.search(r"releases/download/(v[^/]+)/", s)
+          if not m:
+              raise SystemExit("cannot find the current version in Formula/agentbrowser.rb")
+          old_tag = m.group(1)
+          if old_tag == tag:
+              raise SystemExit(0)
+          s = s.replace(f"/{old_tag}/", f"/{tag}/")
+          shas = iter([os.environ[f"SHA{i}"] for i in range(4)])
+          s, n = re.subn(r'(sha256 ")[0-9a-f]{64}(")', lambda mm: mm.group(1) + next(shas) + mm.group(2), s)
+          if n != 4:
+              raise SystemExit(f"expected 4 sha256 lines, replaced {n}")
+          p.write_text(s)
+          PY
+          git diff --exit-code && echo "formula already at $TAG" && exit 0 || true
+
+      - name: Commit the bump
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          git config user.name "anvai-labs tap bot"
+          git config user.email "tap@anvai-labs.local"
+          git add Formula/agentbrowser.rb
+          git commit -m "agentbrowser ${TAG#v}"
+          git push
