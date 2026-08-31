@@ -92,13 +92,13 @@ jobs:
       # Bootstraps Homebrew on the Linux runner (no stored token needed; the
       # tap's installables are public release artifacts and PyPI sdists).
       - uses: Homebrew/actions/setup-homebrew@23156a3d9674d7f52f74f1a58979ec4d77847166
-      - name: Tap the checked-out formulas
+      - name: Point the pre-cloned tap at the checked-out ref
+        # setup-homebrew taps github.repository itself; keep its structure and
+        # just move the tap to the ref under test.
         run: |
           TAP_DIR="$(brew --repository)/Library/Taps/anvai-labs/homebrew-tap"
-          rm -rf "$TAP_DIR" || sudo rm -rf "$TAP_DIR"
-          mkdir -p "$(dirname "$TAP_DIR")"
-          git clone "$GITHUB_WORKSPACE" "$TAP_DIR"
-          git -C "$TAP_DIR" checkout -q "${{ env.CI_REF }}"
+          git -C "$TAP_DIR" fetch -q origin "+${{ env.CI_REF }}"
+          git -C "$TAP_DIR" checkout -q -B ci-under-test FETCH_HEAD
       - name: Audit every formula
         run: |
           brew audit --formula \
