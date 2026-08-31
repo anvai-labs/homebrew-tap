@@ -65,9 +65,9 @@ public reachability, macOS+Linux coverage):
 new tag (e.g. `v0.2.1`) — it downloads the release assets, recomputes the
 SHA-256s, and commits the formula update.
 
-`sentinelpass`: edit `Formula/sentinelpass.rb` (`version` + the two `sha256`
-lines; the sums are also published in each release's `sha256sums.txt`). The
-exact procedure — run it from a scratch clone of this tap:
+`sentinelpass`: edit `Formula/sentinelpass.rb` (the version strings in the two
+URLs + the two `sha256` lines; the sums are also published in each release's
+`sha256sums.txt`). The exact procedure — run it from a scratch clone of this tap:
 
 ```bash
 V=<new version>   # e.g. V=0.8.0
@@ -98,7 +98,7 @@ then `brew style --fix Formula/victor.rb` and re-run `brew install && brew test`
 ## Validation
 
 CI runs on every push to `main` (and every PR): syntax + release-contract
-checks, then `brew audit` on all three formulas followed by a real
+checks, then `brew audit` on every formula followed by a real
 `brew install` and `brew test` of each, against the checked-out tap on a Linux
 runner. The required `CI Success` status check on `main` blocks merges when it
 goes red.
