@@ -36,13 +36,21 @@ or running the binary yourself with the `SANDHI_*` environment (see
 `brew services info anvai-labs/tap/sandhi` and the
 [sandhi operator docs](https://github.com/anvai-labs/sandhi/blob/main/docs/operator/proxy-guide.adoc)).
 
-### Not here (yet), and why
+### Not here (yet), and why — full audit 2026-08-31
 
-- **proximaDB** — a database server with no macOS build; its own deb/rpm/msi
-  cover Linux and Windows. A formula would be Linuxbrew-only.
-- **victor verticals / registry** — Python libraries and services; `pipx`/`uv`
-  remain the right installers.
-- **inferflux** — no releases published.
+Every non-fork repository across `anvai-labs`, `anvaiops`, and `vjsingh1984`
+was audited for formula-worthiness (releases with installable binaries,
+public reachability, macOS+Linux coverage):
+
+| Repo | Verdict | Reason |
+|---|---|---|
+| proximaDB | skip | database server, no macOS build; its deb/rpm/msi cover Linux/Windows |
+| agentbrowser (anvaiops) | **pending visibility** | excellent multi-platform binaries (`darwin-arm64/x64`, `linux-arm64/x64`, windows) — but the repo is PRIVATE, so a public tap cannot download its release assets. Flips to formulable the day the repo or its releases go public |
+| ibkrtrading (anvaiops) | skip | private + no releases |
+| inferflux | skip | public, but no releases published |
+| victor verticals / registry / firmus / interviewer / stock-market-prediction / anvaiops | skip | Python libraries and services; `pipx`/`uv` remain the right installers |
+| reasoning-engine / LLM-Inference-Service | skip | frameworks/services, not installable CLIs |
+| legacy Java/Hadoop repos | skip | sample code, not products |
 
 ## Note on the old tap
 
