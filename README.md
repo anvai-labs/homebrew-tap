@@ -44,10 +44,10 @@ public reachability, macOS+Linux coverage):
 
 | Repo | Verdict | Reason |
 |---|---|---|
-| proximaDB | skip | database server, no macOS build; its deb/rpm/msi cover Linux/Windows |
-| agentbrowser (anvaiops) | **pending visibility** | excellent multi-platform binaries (`darwin-arm64/x64`, `linux-arm64/x64`, windows) — but the repo is PRIVATE, so a public tap cannot download its release assets. Flips to formulable the day the repo or its releases go public |
+| proximaDB | skip | database server, no macOS build; its deb/rpm/msi cover Linux/Windows. **Decision 2026-08-31: stays skipped** (standing default; revisit only if macOS builds get funded upstream) |
+| agentbrowser (anvaiops) | **pending visibility** | excellent multi-platform binaries (`darwin-arm64/x64`, `linux-arm64/x64`, windows, latest v1.4.0) — but the repo is PRIVATE, so a public tap cannot download its release assets. Flips to formulable the day the repo or its releases go public. **Owner visibility decision still open as of 2026-08-31** |
 | ibkrtrading (anvaiops) | skip | private + no releases |
-| inferflux | skip | public, but no releases published |
+| inferflux | skip | public, but no releases published (rechecked 2026-08-31: still zero) — formulable once a release ships target-suffixed archives + sha256sums.txt |
 | victor verticals / registry / firmus / interviewer / stock-market-prediction / anvaiops | skip | Python libraries and services; `pipx`/`uv` remain the right installers |
 | reasoning-engine / LLM-Inference-Service | skip | frameworks/services, not installable CLIs |
 | legacy Java/Hadoop repos | skip | sample code, not products |
@@ -64,7 +64,26 @@ new tag (e.g. `v0.2.1`) — it downloads the release assets, recomputes the
 SHA-256s, and commits the formula update.
 
 `sentinelpass`: edit `Formula/sentinelpass.rb` (`version` + the two `sha256`
-lines; the sums are also published in each release's `sha256sums.txt`).
+lines; the sums are also published in each release's `sha256sums.txt`). The
+exact procedure — run it from a scratch clone of this tap:
+
+```bash
+V=<new version>   # e.g. V=0.8.0
+curl -fsSL -o /tmp/sp-macos.tgz "https://github.com/anvai-labs/sentinelpass/releases/download/v${V}/sentinelpass-${V}-macos.tar.gz"
+curl -fsSL -o /tmp/sp-linux.tgz "https://github.com/anvai-labs/sentinelpass/releases/download/v${V}/sentinelpass-${V}-linux.tar.gz"
+shasum -a 256 /tmp/sp-macos.tgz /tmp/sp-linux.tgz
+curl -fsSL "https://github.com/anvai-labs/sentinelpass/releases/download/v${V}/sha256sums.txt"   # cross-check both sums
+```
+
+then replace `v${V}` in both URLs (the tag path and the tarball names) and set
+the two `sha256` lines (macOS sum first). Nothing else changes — brew detects
+the version from the URLs. The upstream automation
+(`anvai-labs/sentinelpass` release.yml → "Bump Homebrew formula" job, backed
+by `scripts/bump-homebrew-formula.sh`) performs exactly this bump, but skips
+until the `TAP_TOKEN` secret (fine-grained PAT with Contents:write on this
+repo) is configured on that repository; asset names are arch-unnamed
+(`-macos.tar.gz` is arm64-only), so until upstream renames them per-arch the
+formula cannot cover more platforms than these two tarballs.
 
 `victor`: automatic — `update-formula.yml` polls PyPI every 6 hours (it rewrites only the
 sdist `url`/`sha256`). victor-ai itself is installed from that sdist; its dependency closure
@@ -74,7 +93,26 @@ then `brew style --fix Formula/victor.rb` and re-run `brew install && brew test`
 
 ## Validation
 
-CI runs `brew audit` and install tests on every formula on push to `main`.
+CI runs on every push to `main` (and every PR): syntax + release-contract
+checks, then `brew audit` on all three formulas followed by a real
+`brew install` and `brew test` of each, against the checked-out tap on a Linux
+runner. The required `CI Success` status check on `main` blocks merges when it
+goes red.
+
+## Adding a new product
+
+1. Ship target-suffixed archives plus a `sha256sums.txt` in the product's
+   GitHub releases — at minimum `aarch64-apple-darwin` and
+   `x86_64-unknown-linux-gnu`.
+2. Add `Formula/<name>.rb`: one url/sha256 pair per platform, versions
+   **literal** (brew detects them from the URLs), a `livecheck` block pointing
+   at the releases page, and a `test` block that actually runs the binary.
+3. Add a bump workflow (`.github/workflows/update-<name>.yml`, mirroring
+   `update-sandhi.yml`) or document the manual runbook above.
+4. Update the formula table and the audit table in this README in the same
+   change.
+
+CI audits, installs and tests the formula on the push.
 
 ## Note on the old tap URL
 
