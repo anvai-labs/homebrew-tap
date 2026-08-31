@@ -11,6 +11,7 @@ brew tap anvai-labs/tap https://github.com/anvai-labs/homebrew-tap
 brew install anvai-labs/tap/sandhi
 brew install anvai-labs/tap/sentinelpass
 brew install anvai-labs/tap/victor
+brew install anvai-labs/tap/agentbrowser
 ```
 
 (`brew tap anvai-labs/tap` resolves to this repository automatically; the full
@@ -23,6 +24,7 @@ URL is spelled out so the source is never ambiguous.)
 | `sandhi` | `sandhi-proxy` (AI usage gateway server; the `sandhi` operator CLI joins from v0.2.1) | macOS arm64, Linux x86_64 | [anvai-labs/sandhi](https://github.com/anvai-labs/sandhi) |
 | `sentinelpass` | `sentinelpass` + `sentinelpass-host` + `sentinelpass-ui` (+ `-daemon` on Linux) | macOS arm64, Linux x86_64 | [anvai-labs/sentinelpass](https://github.com/anvai-labs/sentinelpass) |
 | `victor` | `victor` (AI coding assistant; PyPI virtualenv) | macOS + Linux | [anvai-labs/victor](https://github.com/anvai-labs/victor) |
+| `agentbrowser` | `agentbrowser-mcp` (agent-native browser service; MCP server) | macOS arm64, macOS x64, Linux x86_64, Linux arm64 | [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) |
 
 ### Running sandhi as a service
 
@@ -45,7 +47,7 @@ public reachability, macOS+Linux coverage):
 | Repo | Verdict | Reason |
 |---|---|---|
 | proximaDB | skip | database server, no macOS build; its deb/rpm/msi cover Linux/Windows. **Decision 2026-08-31: stays skipped** (standing default; revisit only if macOS builds get funded upstream) |
-| agentbrowser (anvaiops) | **pending visibility** | excellent multi-platform binaries (`darwin-arm64/x64`, `linux-arm64/x64`, windows, latest v1.4.0) — but the repo is PRIVATE, so a public tap cannot download its release assets. Flips to formulable the day the repo or its releases go public. **Owner visibility decision still open as of 2026-08-31** |
+| agentbrowser | **live** (formula since 2026-08-31) | was `anvaiops/agentbrowser` (private); the owner chose to make it public and it moved to [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) on 2026-08-31 — raw per-target binaries + `sha256sums.txt` per release; the formula ships all four unix targets |
 | ibkrtrading (anvaiops) | skip | private + no releases |
 | inferflux | skip | public, but no releases published (rechecked 2026-08-31: still zero) — formulable once a release ships target-suffixed archives + sha256sums.txt |
 | victor verticals / registry / firmus / interviewer / stock-market-prediction / anvaiops | skip | Python libraries and services; `pipx`/`uv` remain the right installers |
