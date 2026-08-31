@@ -1,0 +1,67 @@
+name: Update Sandhi Formula
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Sandhi release tag to publish (e.g. v0.2.1)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Compute SHA-256 for each platform archive
+        id: shas
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          ver="${TAG#v}"
+          mac="sandhi-proxy-${TAG}-aarch64-apple-darwin.tar.gz"
+          linux="sandhi-proxy-${TAG}-x86_64-unknown-linux-gnu.tar.gz"
+          base="https://github.com/anvai-labs/sandhi/releases/download/${TAG}"
+          curl -fsSL "$base/$mac"  -o mac.tgz
+          curl -fsSL "$base/$linux" -o linux.tgz
+          {
+            echo "version=$ver"
+            echo "mac_sha=$(sha256sum mac.tgz | cut -d' ' -f1)"
+            echo "linux_sha=$(sha256sum linux.tgz | cut -d' ' -f1)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Rewrite the formula version and checksums
+        env:
+          VERSION: ${{ steps.shas.outputs.version }}
+          MAC_SHA: ${{ steps.shas.outputs.mac_sha }}
+          LINUX_SHA: ${{ steps.shas.outputs.linux_sha }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib, re
+          p = pathlib.Path("Formula/sandhi.rb")
+          s = p.read_text()
+          s = re.sub(r'version "[^"]+"', f'version "{VERSION}"', s, count=1)
+          s = re.sub(r'(aarch64-apple-darwin\.tar\.gz"\n\s*sha256 ")[0-9a-f]+', r'\g<1>' + MAC_SHA, s)
+          s = re.sub(r'(x86_64-unknown-linux-gnu\.tar\.gz"\n\s*sha256 ")[0-9a-f]+', r'\g<1>' + LINUX_SHA, s)
+          p.write_text(s)
+          PY
+          git diff --exit-code && echo "formula already at $VERSION" && exit 0 || true
+
+      - name: Commit the bump
+        env:
+          VERSION: ${{ steps.shas.outputs.version }}
+        run: |
+          git config user.name "anvai-labs tap bot"
+          git config user.email "tap@anvai-labs.local"
+          git add Formula/sandhi.rb
+          git commit -m "sandhi ${VERSION}"
+          git push
