@@ -66,7 +66,11 @@ SHA-256s, and commits the formula update.
 `sentinelpass`: edit `Formula/sentinelpass.rb` (`version` + the two `sha256`
 lines; the sums are also published in each release's `sha256sums.txt`).
 
-`victor`: automatic — `update-formula.yml` polls PyPI every 6 hours.
+`victor`: automatic — `update-formula.yml` polls PyPI every 6 hours (it rewrites only the
+sdist `url`/`sha256`). victor-ai itself is installed from that sdist; its dependency closure
+ships as pinned wheel resources. After a major bump that changes dependency constraints,
+regenerate them: `tools/gen-victor-resources.py` (see its header) + `tools/assemble-victor-formula.py`,
+then `brew style --fix Formula/victor.rb` and re-run `brew install && brew test`.
 
 ## Validation
 
