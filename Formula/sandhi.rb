@@ -26,9 +26,7 @@ class Sandhi < Formula
   end
 
   def install
-    bin.install "sandhi-proxy"
-    # The `sandhi` operator CLI joins the archive from sandhi v0.2.1 (the CLI
-    # was not packaged in release archives before then).
+    bin.install "sandhi-proxy", "sandhi"
   end
 
   service do
@@ -44,8 +42,8 @@ class Sandhi < Formula
 
   test do
     # sandhi-proxy is a server binary without a --help surface; assert the
-    # installed artifact directly. (The `sandhi` CLI gets a --version test once
-    # it ships in the archive.)
+    # installed artifact directly, and exercise the operator CLI's version.
     assert_predicate bin/"sandhi-proxy", :executable?
+    assert_match version.to_s, shell_output("#{bin}/sandhi --version")
   end
 end
