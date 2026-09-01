@@ -21,7 +21,7 @@ URL is spelled out so the source is never ambiguous.)
 
 | Formula | Installs | Platforms | Upstream |
 |---|---|---|---|
-| `sandhi` | `sandhi-proxy` (AI usage gateway server; the `sandhi` operator CLI joins from v0.2.1) | macOS arm64, Linux x86_64 | [anvai-labs/sandhi](https://github.com/anvai-labs/sandhi) |
+| `sandhi` | `sandhi-proxy` (AI usage gateway server) + `sandhi` (operator CLI) | macOS arm64, Linux x86_64 | [anvai-labs/sandhi](https://github.com/anvai-labs/sandhi) |
 | `sentinelpass` | `sentinelpass` + `sentinelpass-host` + `sentinelpass-ui` (+ `-daemon` on Linux) | macOS arm64, Linux x86_64 | [anvai-labs/sentinelpass](https://github.com/anvai-labs/sentinelpass) |
 | `victor` | `victor` (AI coding assistant; PyPI virtualenv) | macOS + Linux | [anvai-labs/victor](https://github.com/anvai-labs/victor) |
 | `agentbrowser` | `agentbrowser-mcp` (agent-native browser service; MCP server) | macOS arm64, macOS x64, Linux x86_64, Linux arm64 | [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) |
