@@ -66,9 +66,11 @@ jobs:
       - name: Commit the bump
         env:
           TAG: ${{ inputs.tag }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "anvai-labs tap bot"
           git config user.email "tap@anvai-labs.local"
           git add Formula/agentbrowser.rb
           git commit -m "agentbrowser ${TAG#v}"
-          git push
+          # The hardened checkout persists no credentials; push via the job token.
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/anvai-labs/homebrew-tap.git" "HEAD:main"
