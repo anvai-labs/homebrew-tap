@@ -82,10 +82,12 @@ the two `sha256` lines (macOS sum first). Nothing else changes — brew detects
 the version from the URLs. The upstream automation
 (`anvai-labs/sentinelpass` release.yml → "Bump Homebrew formula" job, backed
 by `scripts/bump-homebrew-formula.sh`) performs exactly this bump, and
-`TAP_TOKEN` was configured on that repository on 2026-08-31 — the next
-sentinelpass release bumps this formula automatically. Keep the commands
-above: they are the fallback if the job skips again, and they double as the
-diff-shape check (they reproduce the bot's exact change). Asset names are
+`TAP_TOKEN` was configured on that repository on 2026-08-31, and the
+automation has since **proven itself end to end**: the v0.8.0 release bumped
+this formula automatically (commit `a258100`, sums verified against
+`sha256sums.txt`). Keep the commands above: they are the fallback if the job
+skips again, and they double as the diff-shape check (they reproduce the
+bot's exact change). Asset names are
 arch-unnamed (`-macos.tar.gz` is arm64-only), so until upstream renames them
 per-arch the formula cannot cover more platforms than these two tarballs.
 
