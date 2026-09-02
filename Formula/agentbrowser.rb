@@ -33,6 +33,31 @@ class Agentbrowser < Formula
     regex(%r{/tag/v?(\d+(?:\.\d+)+)$}i)
   end
 
+  depends_on "node@22"
+
+  resource "server" do
+    on_macos do
+      on_arm do
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.5.0/agentbrowser-server-darwin-arm64.tar.gz"
+        sha256 "ea3b3078a3279cdc2fada6cd69732087accad18401869c65be3940b551e7bea3"
+      end
+      # No intel-mac server leg yet: the macos-13 runner the x64 tarball needs
+      # has been unavailable (same starvation sandhi's release.yml documents).
+      # Intel macs still get the MCP binary; the service leg lands when the
+      # x64 tarball ships.
+    end
+    on_linux do
+      on_intel do
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.5.0/agentbrowser-server-linux-x64.tar.gz"
+        sha256 "8458742a3070aa32ff86bf9a97029386516bff3e9dd30ae2133b41fe7a83f406"
+      end
+      on_arm do
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.5.0/agentbrowser-server-linux-arm64.tar.gz"
+        sha256 "1eb17bd59d486dc12042597208f3c9878b14637b5cf85338cde986538561da16"
+      end
+    end
+  end
+
   def install
     target = if OS.mac?
       Hardware::CPU.arm? ? "agentbrowser-mcp-darwin-arm64" : "agentbrowser-mcp-darwin-x64"
@@ -47,7 +72,7 @@ class Agentbrowser < Formula
 
     # Service wrapper: keeps the Playwright browser cache under var and
     # bootstraps Chromium on first run (headless shell + browser, ~100 MB).
-    node_bin = Formula["node@22"].opt_bin/"node"
+    node_bin = formula_opt_bin("node@22")/"node"
     (bin/"agentbrowser-server").write <<~EOS
       #!/bin/bash
       export PLAYWRIGHT_BROWSERS_PATH="${PLAYWRIGHT_BROWSERS_PATH:-#{var}/agentbrowser/browsers}"
@@ -59,31 +84,6 @@ class Agentbrowser < Formula
       exec "#{node_bin}" "#{libexec}/dist/bin.js" "$@"
     EOS
   end
-
-  resource "server" do
-    on_macos do
-      on_arm do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.5.0/agentbrowser-server-darwin-arm64.tar.gz"
-        sha256 "PLACEHOLDER_DARWIN_ARM64"
-      end
-      on_intel do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.5.0/agentbrowser-server-darwin-x64.tar.gz"
-        sha256 "PLACEHOLDER_DARWIN_X64"
-      end
-    end
-    on_linux do
-      on_intel do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.5.0/agentbrowser-server-linux-x64.tar.gz"
-        sha256 "PLACEHOLDER_LINUX_X64"
-      end
-      on_arm do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.5.0/agentbrowser-server-linux-arm64.tar.gz"
-        sha256 "PLACEHOLDER_LINUX_ARM64"
-      end
-    end
-  end
-
-  depends_on "node@22"
 
   service do
     run [opt_bin/"agentbrowser-server"]
@@ -101,6 +101,7 @@ class Agentbrowser < Formula
         the service:     brew services start anvai-labs/tap/agentbrowser
                          (listens on 127.0.0.1:3000; first start bootstraps
                          Chromium into var/agentbrowser/browsers)
+                         [service ships for Apple-silicon macs and Linux]
         the MCP server:  spawn #{opt_bin}/agentbrowser-mcp — no args (stdio)
 
       Wire up an MCP client:
