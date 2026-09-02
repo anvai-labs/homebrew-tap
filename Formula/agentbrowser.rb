@@ -2,14 +2,17 @@
 # frozen_string_literal: true
 
 class Agentbrowser < Formula
-  desc "Agent-native browser service for AI agents (agentbrowser-mcp server)"
+  desc "Agent-native browser service for AI agents (server + MCP server)"
   homepage "https://github.com/anvai-labs/agentbrowser"
   license "Apache-2.0"
 
-  # Prebuilt release binaries (raw per-target executables, plus a
-  # sha256sums.txt in each release). The windows exe is not installable via
-  # brew. Versions are literal so brew detects them from the URL; the Update
-  # Agentbrowser Formula workflow rewrites them plus the four sha256 lines.
+  # Prebuilt release artifacts: the agentbrowser-mcp executable (raw
+  # per-target binaries) and, since v1.5.0, the API server as per-target
+  # "fat tarballs" (built dist/ + pruned production node_modules — Playwright
+  # is bundler-hostile, so the tree ships intact; see upstream #17). The
+  # windows exe is not installable via brew. Versions are literal so brew
+  # detects them from the URL; the Update Agentbrowser Formula workflow
+  # rewrites them plus the sha256 lines.
   if OS.mac? && Hardware::CPU.arm?
     url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.4.0/agentbrowser-mcp-darwin-arm64"
     sha256 "db0df7997653f145690a9be640e8754562fdce0f537e228a18fe0e3bc6d36c49"
@@ -37,11 +40,68 @@ class Agentbrowser < Formula
       Hardware::CPU.arm? ? "agentbrowser-mcp-linux-arm64" : "agentbrowser-mcp-linux-x64"
     end
     bin.install target => "agentbrowser-mcp"
+
+    resource("server").stage do
+      libexec.install Dir["*"]
+    end
+
+    # Service wrapper: keeps the Playwright browser cache under var and
+    # bootstraps Chromium on first run (headless shell + browser, ~100 MB).
+    node_bin = Formula["node@22"].opt_bin/"node"
+    (bin/"agentbrowser-server").write <<~EOS
+      #!/bin/bash
+      export PLAYWRIGHT_BROWSERS_PATH="${PLAYWRIGHT_BROWSERS_PATH:-#{var}/agentbrowser/browsers}"
+      if ! compgen -G "$PLAYWRIGHT_BROWSERS_PATH/chromium*" >/dev/null 2>&1; then
+        echo "agentbrowser-server: bootstrapping Chromium (one-time download)..." >&2
+        PW_CLI="$(echo #{libexec}/node_modules/.pnpm/playwright@*/node_modules/playwright/cli.js)"
+        "#{node_bin}" "$PW_CLI" install chromium 1>&2
+      fi
+      exec "#{node_bin}" "#{libexec}/dist/bin.js" "$@"
+    EOS
+  end
+
+  resource "server" do
+    on_macos do
+      on_arm do
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.5.0/agentbrowser-server-darwin-arm64.tar.gz"
+        sha256 "PLACEHOLDER_DARWIN_ARM64"
+      end
+      on_intel do
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.5.0/agentbrowser-server-darwin-x64.tar.gz"
+        sha256 "PLACEHOLDER_DARWIN_X64"
+      end
+    end
+    on_linux do
+      on_intel do
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.5.0/agentbrowser-server-linux-x64.tar.gz"
+        sha256 "PLACEHOLDER_LINUX_X64"
+      end
+      on_arm do
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.5.0/agentbrowser-server-linux-arm64.tar.gz"
+        sha256 "PLACEHOLDER_LINUX_ARM64"
+      end
+    end
+  end
+
+  depends_on "node@22"
+
+  service do
+    run [opt_bin/"agentbrowser-server"]
+    environment_variables "HOST" => "127.0.0.1",
+                          "PORT" => "3000"
+    keep_alive true
+    log_path var/"log/agentbrowser-server.log"
+    error_log_path var/"log/agentbrowser-server.err.log"
   end
 
   def caveats
     <<~EOS
-      agentbrowser-mcp is a stdio MCP server — spawn it directly, no args.
+      One install, both halves:
+
+        the service:     brew services start anvai-labs/tap/agentbrowser
+                         (listens on 127.0.0.1:3000; first start bootstraps
+                         Chromium into var/agentbrowser/browsers)
+        the MCP server:  spawn #{opt_bin}/agentbrowser-mcp — no args (stdio)
 
       Wire up an MCP client:
 
@@ -53,10 +113,10 @@ class Agentbrowser < Formula
           [mcp_servers.agentbrowser]
           command = "#{opt_bin}/agentbrowser-mcp"
 
-      The browser tools drive an AgentBrowser service (default
-      http://localhost:3000; override with AGENTBROWSER_BASE_URL; authenticate
-      with AGENTBROWSER_API_KEY). The service itself is not yet distributed
-      via brew — run it from a repo checkout until it ships.
+      The browser tools drive the service (default
+      http://localhost:3000; override with AGENTBROWSER_BASE_URL,
+      authenticate with AGENTBROWSER_API_KEY — set keys via the service's
+      AGENTBROWSER_API_KEYS env in a launchd override if you expose it).
     EOS
   end
 
