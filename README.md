@@ -56,8 +56,9 @@ public reachability, macOS+Linux coverage):
 
 ## Note on the old tap
 
-`vjsingh1984/homebrew-tap` predates this one and carries a mirror of
-`victor.rb`. It is frozen; install from `anvai-labs/tap` (this repository).
+`vjsingh1984/homebrew-tap` predates this one and was **transferred into the
+`anvai-labs` org** — it is this repository, not a second tap (see the URL note
+below). Install from `anvai-labs/tap`.
 
 ## For maintainers: bumping a formula on release
 
@@ -96,6 +97,13 @@ sdist `url`/`sha256`). victor-ai itself is installed from that sdist; its depend
 ships as pinned wheel resources. After a major bump that changes dependency constraints,
 regenerate them: `tools/gen-victor-resources.py` (see its header) + `tools/assemble-victor-formula.py`,
 then `brew style --fix Formula/victor.rb` and re-run `brew install && brew test`.
+
+**Bot PRs start with no checks.** GitHub will not run workflows for PRs created
+with the job token, so `automation/update-*` PRs sit checkless until nudged:
+push one empty commit to the PR branch with a real token
+(`git commit --allow-empty && git push`) — CI then runs and gates the merge as
+usual. Same for reviewing: the bump diff must always be exactly the version
+strings and `sha256` lines.
 
 ## Validation
 
