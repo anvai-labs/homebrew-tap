@@ -39,6 +39,27 @@ class Agentbrowser < Formula
     bin.install target => "agentbrowser-mcp"
   end
 
+  def caveats
+    <<~EOS
+      agentbrowser-mcp is a stdio MCP server — spawn it directly, no args.
+
+      Wire up an MCP client:
+
+        Claude Code:
+          claude mcp add agentbrowser -- #{opt_bin}/agentbrowser-mcp
+        Claude Desktop (claude_desktop_config.json):
+          {"mcpServers": {"agentbrowser": {"command": "#{opt_bin}/agentbrowser-mcp"}}}
+        Codex (~/.codex/config.toml):
+          [mcp_servers.agentbrowser]
+          command = "#{opt_bin}/agentbrowser-mcp"
+
+      The browser tools drive an AgentBrowser service (default
+      http://localhost:3000; override with AGENTBROWSER_BASE_URL; authenticate
+      with AGENTBROWSER_API_KEY). The service itself is not yet distributed
+      via brew — run it from a repo checkout until it ships.
+    EOS
+  end
+
   test do
     # agentbrowser-mcp is a stdio MCP server: given an open stdin it starts
     # serving and never exits, so probe it with stdin closed.
