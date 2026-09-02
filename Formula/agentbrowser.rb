@@ -7,24 +7,24 @@ class Agentbrowser < Formula
   license "Apache-2.0"
 
   # Prebuilt release artifacts: the agentbrowser-mcp executable (raw
-  # per-target binaries) and, since v1.5.0, the API server as per-target
+  # per-target binaries) and, since v1.6.1, the API server as per-target
   # "fat tarballs" (built dist/ + pruned production node_modules — Playwright
   # is bundler-hostile, so the tree ships intact; see upstream #17). The
   # windows exe is not installable via brew. Versions are literal so brew
   # detects them from the URL; the Update Agentbrowser Formula workflow
   # rewrites them plus the sha256 lines.
   if OS.mac? && Hardware::CPU.arm?
-    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.4.0/agentbrowser-mcp-darwin-arm64"
-    sha256 "db0df7997653f145690a9be640e8754562fdce0f537e228a18fe0e3bc6d36c49"
+    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.6.1/agentbrowser-mcp-darwin-arm64"
+    sha256 "15181c8b9dd24297de1280e0948ddd9cfa0c7d11c571a86f4cb3a146b363461b"
   elsif OS.mac? && Hardware::CPU.intel?
-    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.4.0/agentbrowser-mcp-darwin-x64"
-    sha256 "8311b22b29a765a11df4316bc3d8a215b3819932d5da1ea6b70e710342c56fbe"
+    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.6.1/agentbrowser-mcp-darwin-x64"
+    sha256 "a5f475c779fe68b19dc056cbde815c212c28ab6d1d8a9243378434eb41aea8b9"
   elsif OS.linux? && Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.4.0/agentbrowser-mcp-linux-arm64"
-    sha256 "a2b6c1f47a434eadbbb1e036cf28abd476eb38869ffbcf61f50ba34b084cbabf"
+    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.6.1/agentbrowser-mcp-linux-arm64"
+    sha256 "988a0abc791687b568c5a80150f9fcb5e55cb2bbd8319750f3188d49cc32a6e8"
   elsif OS.linux? && Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.4.0/agentbrowser-mcp-linux-x64"
-    sha256 "2c15df9a390a3a9856871f7c43f464f14bd154919c0ca9a63508a7670bff91e2"
+    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.6.1/agentbrowser-mcp-linux-x64"
+    sha256 "db503c16771fa05e4d0e833ddfa8c3caa9c1d4a5ee7704018340c49ee1177de4"
   end
 
   livecheck do
@@ -38,22 +38,22 @@ class Agentbrowser < Formula
   resource "server" do
     on_macos do
       on_arm do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.5.0/agentbrowser-server-darwin-arm64.tar.gz"
-        sha256 "ea3b3078a3279cdc2fada6cd69732087accad18401869c65be3940b551e7bea3"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.6.1/agentbrowser-server-darwin-arm64.tar.gz"
+        sha256 "0a59ed63d26331768110f3df59758df8ad00cf7a7075949ccf5b3f6fe054c396"
       end
-      # No intel-mac server leg yet: the macos-13 runner the x64 tarball needs
-      # has been unavailable (same starvation sandhi's release.yml documents).
-      # Intel macs still get the MCP binary; the service leg lands when the
-      # x64 tarball ships.
+      on_intel do
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.6.1/agentbrowser-server-darwin-x64.tar.gz"
+        sha256 "7c3299899bffca7024b1fdb012372bcd2938f2889dd51d93237887d5da53b068"
+      end
     end
     on_linux do
       on_intel do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.5.0/agentbrowser-server-linux-x64.tar.gz"
-        sha256 "8458742a3070aa32ff86bf9a97029386516bff3e9dd30ae2133b41fe7a83f406"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.6.1/agentbrowser-server-linux-x64.tar.gz"
+        sha256 "8a46387c35efb68293c3b66965c4f7b947489ca76043c581137c80582fda4ed0"
       end
       on_arm do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.5.0/agentbrowser-server-linux-arm64.tar.gz"
-        sha256 "1eb17bd59d486dc12042597208f3c9878b14637b5cf85338cde986538561da16"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.6.1/agentbrowser-server-linux-arm64.tar.gz"
+        sha256 "11087b0b08738cd46b2071c8ef7722c0a5983cad4bedfb7570e06f0d1804d307"
       end
     end
   end
@@ -101,7 +101,6 @@ class Agentbrowser < Formula
         the service:     brew services start anvai-labs/tap/agentbrowser
                          (listens on 127.0.0.1:3000; first start bootstraps
                          Chromium into var/agentbrowser/browsers)
-                         [service ships for Apple-silicon macs and Linux]
         the MCP server:  spawn #{opt_bin}/agentbrowser-mcp — no args (stdio)
 
       Wire up an MCP client:
