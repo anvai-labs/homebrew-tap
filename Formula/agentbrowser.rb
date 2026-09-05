@@ -14,17 +14,17 @@ class Agentbrowser < Formula
   # detects them from the URL; the Update Agentbrowser Formula workflow
   # rewrites them plus the sha256 lines.
   if OS.mac? && Hardware::CPU.arm?
-    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-mcp-darwin-arm64"
-    sha256 "5a6cbb5a7ea80dec46b3fbad801d50a7cb85c802e2cc8f1786e816aa6856e7f0"
+    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.3/agentbrowser-mcp-darwin-arm64"
+    sha256 "74a7ebe8030e933ce23e3a3bf0529e33738c95d74b70f123ca79d6d325c81b16"
   elsif OS.mac? && Hardware::CPU.intel?
-    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-mcp-darwin-x64"
-    sha256 "994352c555fae0ee2c0be2c2d62b3617f4a7ba274017147a0e9216afe0fb82d4"
+    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.3/agentbrowser-mcp-darwin-x64"
+    sha256 "b98852456709b5dc295d67500d8f8935153bf0a35045d33f52ff9205a8585ac7"
   elsif OS.linux? && Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-mcp-linux-arm64"
-    sha256 "27f95da70700c5029bcf23741b3c8a8b0bf3e97cd58f11dd742087770cbbf0ff"
+    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.3/agentbrowser-mcp-linux-arm64"
+    sha256 "ce903e29723e3b2b2f2bceb1df9faa52c8a680d20f65d8acbf4903d184697f09"
   elsif OS.linux? && Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-mcp-linux-x64"
-    sha256 "0b65fc33a2201dee3983f78e47468c6c2e26c0b14a4fd9055967c016bd741662"
+    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.3/agentbrowser-mcp-linux-x64"
+    sha256 "500dfb8ad40c579125b68d203d3e4f2ee9d6676f4321cbe0799a1810f264e995"
   end
 
   livecheck do
@@ -38,22 +38,22 @@ class Agentbrowser < Formula
   resource "server" do
     on_macos do
       on_arm do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-server-darwin-arm64.tar.gz"
-        sha256 "8962e188c022c15a38418f660c9c56e4f03bcfc74bca9c5746433d4057c7e098"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.3/agentbrowser-server-darwin-arm64.tar.gz"
+        sha256 "911c7c7299cc508429c6e9ea924290b557d15567e9c136cfed4c679774899918"
       end
       on_intel do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-server-darwin-x64.tar.gz"
-        sha256 "34cafe02f5c88b5e64335875b21b35ec8242cfc425f35ce7afd791e710dcf330"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.3/agentbrowser-server-darwin-x64.tar.gz"
+        sha256 "c1444174a6feba0eca942a0a652822086c24847e64242f0097b30e65fa0ef809"
       end
     end
     on_linux do
       on_intel do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-server-linux-x64.tar.gz"
-        sha256 "d08865d7547b0e23d4dfba741aa5a31d011ba0df074295583d58d08312b6a9c7"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.3/agentbrowser-server-linux-x64.tar.gz"
+        sha256 "d96aeeefb91b4e47558d3761bcb34a0bfcb7fb1d85e919c7aa4e32e869384d58"
       end
       on_arm do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-server-linux-arm64.tar.gz"
-        sha256 "7ec04949f425f546695920e15361ef660b6098564b95abbae6e3fa57c64fa4dd"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.3/agentbrowser-server-linux-arm64.tar.gz"
+        sha256 "b6a51ea9ddd28a49e4e82ed397bee20e8e22dfe82bb84dbc3ac660c528833856"
       end
     end
   end
@@ -61,22 +61,22 @@ class Agentbrowser < Formula
   resource "cli" do
     on_macos do
       on_arm do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-cli-darwin-arm64"
-        sha256 "4507664f5bc6b70598696c4f6857b97794f9cd170c7e28b961de6a4a52e9f1f3"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.3/agentbrowser-cli-darwin-arm64"
+        sha256 "7269e96c8ca00b7b6c2d01133cdedb1d9fb20f1c6291aefc7344bb05e4bc35c9"
       end
       on_intel do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-cli-darwin-x64"
-        sha256 "59f0823a3dcd36909853be86fe3691835f7c83214526cf7d0babe92e962e69b7"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.3/agentbrowser-cli-darwin-x64"
+        sha256 "d978c35286c67fa1dd957f12c91ef6102faf6df1b36261c7a3c6fc831282597d"
       end
     end
     on_linux do
       on_arm do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-cli-linux-arm64"
-        sha256 "4e925e62f2ba4f238f74c0a4ced3e11f56f56443e0b7fd8cf970972e8eae16c9"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.3/agentbrowser-cli-linux-arm64"
+        sha256 "01f19f2c01aeb7d5401d14e89615fddb6de0d4aad393e1e85055ffbbf72b7179"
       end
       on_intel do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-cli-linux-x64"
-        sha256 "32f581b4abc8099ea673767537ec72e1eca8a6721afb74008721b6dc70ea5185"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.3/agentbrowser-cli-linux-x64"
+        sha256 "7383fba825d8e7b2e2b2f75373241f41db17c8d6407dce0c2ffbc1bc3664a437"
       end
     end
   end
