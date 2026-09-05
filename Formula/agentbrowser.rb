@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 class Agentbrowser < Formula
-  desc "Agent-native browser service for AI agents (server + MCP server)"
+  desc "Agent-native browser service for AI agents (server + CLI + MCP server)"
   homepage "https://github.com/anvai-labs/agentbrowser"
   license "Apache-2.0"
 
@@ -58,6 +58,29 @@ class Agentbrowser < Formula
     end
   end
 
+  resource "cli" do
+    on_macos do
+      on_arm do
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-cli-darwin-arm64"
+        sha256 "4507664f5bc6b70598696c4f6857b97794f9cd170c7e28b961de6a4a52e9f1f3"
+      end
+      on_intel do
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-cli-darwin-x64"
+        sha256 "59f0823a3dcd36909853be86fe3691835f7c83214526cf7d0babe92e962e69b7"
+      end
+    end
+    on_linux do
+      on_arm do
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-cli-linux-arm64"
+        sha256 "4e925e62f2ba4f238f74c0a4ced3e11f56f56443e0b7fd8cf970972e8eae16c9"
+      end
+      on_intel do
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.8.2/agentbrowser-cli-linux-x64"
+        sha256 "32f581b4abc8099ea673767537ec72e1eca8a6721afb74008721b6dc70ea5185"
+      end
+    end
+  end
+
   def install
     target = if OS.mac?
       Hardware::CPU.arm? ? "agentbrowser-mcp-darwin-arm64" : "agentbrowser-mcp-darwin-x64"
@@ -65,6 +88,15 @@ class Agentbrowser < Formula
       Hardware::CPU.arm? ? "agentbrowser-mcp-linux-arm64" : "agentbrowser-mcp-linux-x64"
     end
     bin.install target => "agentbrowser-mcp"
+
+    resource("cli").stage do
+      cli_target = if OS.mac?
+        Hardware::CPU.arm? ? "agentbrowser-cli-darwin-arm64" : "agentbrowser-cli-darwin-x64"
+      else
+        Hardware::CPU.arm? ? "agentbrowser-cli-linux-arm64" : "agentbrowser-cli-linux-x64"
+      end
+      bin.install cli_target => "agentbrowser"
+    end
 
     resource("server").stage do
       libexec.install Dir["*"]
@@ -96,11 +128,14 @@ class Agentbrowser < Formula
 
   def caveats
     <<~EOS
-      One install, both halves:
+      One install, all three:
 
         the service:     brew services start anvai-labs/tap/agentbrowser
                          (listens on 127.0.0.1:3000; first start bootstraps
                          Chromium into var/agentbrowser/browsers)
+        the CLI:         #{opt_bin}/agentbrowser --help
+                         (session create --no-headless --idle-timeout 3600000,
+                          snapshot/plan, session cookies, session trace)
         the MCP server:  spawn #{opt_bin}/agentbrowser-mcp — no args (stdio)
 
       Wire up an MCP client:
@@ -124,5 +159,6 @@ class Agentbrowser < Formula
     # agentbrowser-mcp is a stdio MCP server: given an open stdin it starts
     # serving and never exits, so probe it with stdin closed.
     system "/bin/sh", "-c", %Q("#{bin}/agentbrowser-mcp" --help </dev/null)
+    system "#{bin}/agentbrowser", "--help"
   end
 end
