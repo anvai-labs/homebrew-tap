@@ -41,6 +41,14 @@ jobs:
             echo "sha$i=$(sha256sum ab.tgz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
             i=$((i+1))
           done
+          # CLI binaries (since v1.8.2); declaration order in the formula:
+          # mcp urls (sha0-3), server resource (sha4-7), cli resource
+          # (sha8-11: mac-arm, mac-x64, linux-arm, linux-x64).
+          for target in darwin-arm64 darwin-x64 linux-arm64 linux-x64; do
+            curl -fsSL "$base/agentbrowser-cli-$target" -o ab.cli
+            echo "sha$i=$(sha256sum ab.cli | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+            i=$((i+1))
+          done
 
       - name: Rewrite the formula version and checksums
         env:
@@ -53,6 +61,10 @@ jobs:
           SHA5: ${{ steps.shas.outputs.sha5 }}
           SHA6: ${{ steps.shas.outputs.sha6 }}
           SHA7: ${{ steps.shas.outputs.sha7 }}
+          SHA8: ${{ steps.shas.outputs.sha8 }}
+          SHA9: ${{ steps.shas.outputs.sha9 }}
+          SHA10: ${{ steps.shas.outputs.sha10 }}
+          SHA11: ${{ steps.shas.outputs.sha11 }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
@@ -67,12 +79,12 @@ jobs:
           if old_tag == tag:
               raise SystemExit(0)
           s = s.replace(f"/{old_tag}/", f"/{tag}/")
-          # Declaration order: mcp binaries, then the server resource
-          # (mac-arm, mac-x64, linux-x64, linux-arm).
-          shas = iter([os.environ[f"SHA{i}"] for i in range(8)])
+          # Declaration order: mcp binaries (sha0-3), the server resource
+          # (sha4-7), then the cli resource (sha8-11) added in v1.8.2.
+          shas = iter([os.environ[f"SHA{i}"] for i in range(12)])
           s, n = re.subn(r'(sha256 ")[0-9a-f]{64}(")', lambda mm: mm.group(1) + next(shas) + mm.group(2), s)
-          if n != 8:
-              raise SystemExit(f"expected 8 sha256 lines, replaced {n}")
+          if n != 12:
+              raise SystemExit(f"expected 12 sha256 lines, replaced {n}")
           p.write_text(s)
           PY
           git diff --exit-code && echo "formula already at $TAG" && exit 0 || true
