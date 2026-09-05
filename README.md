@@ -24,7 +24,7 @@ URL is spelled out so the source is never ambiguous.)
 | `sandhi` | `sandhi-proxy` (AI usage gateway server) + `sandhi` (operator CLI) | macOS arm64, Linux x86_64 | [anvai-labs/sandhi](https://github.com/anvai-labs/sandhi) |
 | `sentinelpass` | `sentinelpass` + `sentinelpass-host` + `sentinelpass-ui` (+ `-daemon` on Linux) | macOS arm64, Linux x86_64 | [anvai-labs/sentinelpass](https://github.com/anvai-labs/sentinelpass) |
 | `victor` | `victor` (AI coding assistant; PyPI virtualenv) | macOS + Linux | [anvai-labs/victor](https://github.com/anvai-labs/victor) |
-| `agentbrowser` | `agentbrowser-mcp` (agent-native browser service; MCP server) | macOS arm64, macOS x64, Linux x86_64, Linux arm64 | [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) |
+| `agentbrowser` | `agentbrowser`, `agentbrowser-server`, `agentbrowser-mcp` (agent-native browser service: CLI, service daemon, MCP server) | macOS arm64, macOS x64, Linux x86_64, Linux arm64 | [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) |
 
 ### Running sandhi as a service
 
@@ -47,7 +47,7 @@ public reachability, macOS+Linux coverage):
 | Repo | Verdict | Reason |
 |---|---|---|
 | proximaDB | skip | database server, no macOS build; its deb/rpm/msi cover Linux/Windows. **Decision 2026-08-31: stays skipped** (standing default; revisit only if macOS builds get funded upstream) |
-| agentbrowser | **live** (formula since 2026-08-31) | was `anvaiops/agentbrowser` (private); the owner chose to make it public and it moved to [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) on 2026-08-31 — raw per-target binaries + `sha256sums.txt` per release; the formula ships all four unix targets |
+| agentbrowser | **live** (formula since 2026-08-31) | was `anvaiops/agentbrowser` (private); the owner chose to make it public and it moved to [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) on 2026-08-31 — raw per-target binaries + `sha256sums.txt` per release; the formula ships all four unix targets (CLI binary added in v1.8.2 alongside the MCP binary and server tarball) |
 | ibkrtrading (anvaiops) | skip | private + no releases |
 | inferflux | skip | public, but no releases published (rechecked 2026-08-31: still zero) — formulable once a release ships target-suffixed archives + sha256sums.txt |
 | victor verticals / registry / firmus / interviewer / stock-market-prediction / anvaiops | skip | Python libraries and services; `pipx`/`uv` remain the right installers |
