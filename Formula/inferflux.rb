@@ -12,10 +12,10 @@ class Inferflux < Formula
   # workflow rewrites them plus the sha256 lines.
   if OS.mac? && Hardware::CPU.arm64?
     url "https://github.com/anvai-labs/inferflux/releases/download/v0.1.0/inferflux-0.1.0-Darwin-arm64.tar.gz"
-    sha256 "3729757f932e98ad0afee2f34a891d03cab334e1828a2dc6b44cf5a008f3a383"
+    sha256 "75ed7b849114b862d6b2fe536d733b734a0ebd0f8af7970d070e2296189b2778"
   elsif OS.linux? && Hardware::CPU.intel?
     url "https://github.com/anvai-labs/inferflux/releases/download/v0.1.0/inferflux-0.1.0-Linux-x86_64.tar.gz"
-    sha256 "007edf053c5d31a49e08d5d73486ab74a29def87c689d74df759063cbfc55f16"
+    sha256 "ac31f4312ecb93551d25b50832b1134929d4c650f0369f3cc3376e972c4deb3a"
   end
 
   livecheck do
@@ -23,6 +23,12 @@ class Inferflux < Formula
     strategy :header_match
     regex(%r{/tag/v?(\d+(?:\.\d+)+)$}i)
   end
+
+  # llama/ggml are statically linked into the release binaries
+  # (BUILD_SHARED_LIBS=OFF in Release Packaging); these two stay dynamic
+  # against Homebrew's kegs, which is what the release runners build against.
+  depends_on "openssl@3"
+  depends_on "yaml-cpp"
 
   def install
     # The cpack tgz is the staged install tree (bin/, etc/, share/); brew
