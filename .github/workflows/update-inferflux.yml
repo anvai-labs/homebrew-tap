@@ -1,0 +1,78 @@
+name: Update Inferflux Formula
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Inferflux release tag to publish (e.g. v0.1.0)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Compute SHA-256 for each platform archive
+        id: shas
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          ver="${TAG#v}"
+          mac="inferflux-${ver}-Darwin-arm64.tar.gz"
+          linux="inferflux-${ver}-Linux-x86_64.tar.gz"
+          base="https://github.com/anvai-labs/inferflux/releases/download/${TAG}"
+          curl -fsSL "$base/$mac"  -o mac.tgz
+          curl -fsSL "$base/$linux" -o linux.tgz
+          {
+            echo "version=$ver"
+            echo "mac_sha=$(sha256sum mac.tgz | cut -d' ' -f1)"
+            echo "linux_sha=$(sha256sum linux.tgz | cut -d' ' -f1)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Rewrite the formula version and checksums
+        env:
+          TAG: ${{ inputs.tag }}
+          MAC_SHA: ${{ steps.shas.outputs.mac_sha }}
+          LINUX_SHA: ${{ steps.shas.outputs.linux_sha }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, pathlib, re
+          tag = os.environ["TAG"]
+          p = pathlib.Path("Formula/inferflux.rb")
+          s = p.read_text()
+          m = re.search(r"releases/download/(v[^/]+)/", s)
+          if not m:
+              raise SystemExit("cannot find the current version in Formula/inferflux.rb")
+          old_tag = m.group(1)
+          if old_tag == tag:
+              raise SystemExit(0)
+          s = s.replace(f"/{old_tag}/", f"/{tag}/")
+          s = re.sub(rf"(inferflux-){re.escape(old_tag[1:])}", rf"\g<1>{tag[1:]}", s)
+          shas = iter([os.environ["MAC_SHA"], os.environ["LINUX_SHA"]])
+          s, n = re.subn(r'(sha256 ")[0-9a-f]{64}(")', lambda mm: mm.group(1) + next(shas) + mm.group(2), s)
+          if n != 2:
+              raise SystemExit(f"expected 2 sha256 lines, replaced {n}")
+          p.write_text(s)
+          PY
+          git diff --exit-code && echo "formula already at $TAG" && exit 0 || true
+
+
+      - name: Open or update the bump pull request
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        with:
+          branch: automation/update-inferflux-formula
+          delete-branch: true
+          commit-message: "inferflux ${{ steps.shas.outputs.version }}"
+          title: "inferflux ${{ steps.shas.outputs.version }}"
+          body: "Automated bump: release assets downloaded, SHA-256s recomputed from the actual bytes."
