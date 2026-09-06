@@ -25,7 +25,8 @@ class Inferflux < Formula
   end
 
   def install
-    bin.install "inferfluxd", "inferctl"
+    # The cpack tgz is the staged install tree: bin/, etc/, share/.
+    bin.install "bin/inferfluxd", "bin/inferctl"
     # Sample server config; hand to inferfluxd via --config or copy locally.
     (pkgetc/"inferflux").install "etc/inferflux/inferflux.yaml"
   end
