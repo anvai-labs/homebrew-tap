@@ -40,7 +40,7 @@ class Inferflux < Formula
 
   test do
     assert_predicate bin/"inferfluxd", :executable?
-    # `inferctl status --help` prints usage and exits 1 outside a session.
-    assert_match "Usage", shell_output("#{bin}/inferctl status --help", 1)
+    # Top-level help prints the usage block and exits 1 (no session/server).
+    assert_match "Usage", shell_output("#{bin}/inferctl --help", 1)
   end
 end
