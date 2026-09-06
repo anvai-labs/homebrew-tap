@@ -25,10 +25,13 @@ class Inferflux < Formula
   end
 
   def install
-    # The cpack tgz is the staged install tree: bin/, etc/, share/.
-    bin.install "bin/inferfluxd", "bin/inferctl"
+    # cpack wraps the staged install tree (bin/, etc/, share/) in a
+    # version-named root dir, and brew keeps it - locate it by prefix.
+    root = Dir["inferflux-*"].first
+    odie "unexpected archive layout" if root.nil? || !directory?(root)
+    bin.install "#{root}/bin/inferfluxd", "#{root}/bin/inferctl"
     # Sample server config; hand to inferfluxd via --config or copy locally.
-    (pkgetc/"inferflux").install "etc/inferflux/inferflux.yaml"
+    (pkgetc/"inferflux").install "#{root}/etc/inferflux/inferflux.yaml"
   end
 
   test do
