@@ -35,7 +35,7 @@ class Inferflux < Formula
     # strips the single version-named root dir, so paths are root-relative.
     bin.install "bin/inferfluxd", "bin/inferctl"
     # Sample server config; hand to inferfluxd via --config or copy locally.
-    (pkgetc/"inferflux").install "etc/inferflux/inferflux.yaml"
+    pkgetc.install "etc/inferflux/inferflux.yaml"
   end
 
   test do
