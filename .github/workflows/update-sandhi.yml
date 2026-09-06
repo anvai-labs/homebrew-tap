@@ -40,6 +40,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Rewrite the formula version and checksums
+        id: rewrite
         env:
           TAG: ${{ inputs.tag }}
           MAC_SHA: ${{ steps.shas.outputs.mac_sha }}
@@ -65,10 +66,17 @@ jobs:
               raise SystemExit(f"expected 2 sha256 lines, replaced {n}")
           p.write_text(s)
           PY
-          git diff --exit-code && echo "formula already at $TAG" && exit 0 || true
-
+          # Only the formula counts as a change; the re-downloaded root
+          # tarballs churn on every run (gzip mtime) and must not trigger a PR.
+          if git diff --quiet -- Formula/sandhi.rb; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "formula already at ${TAG}"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Open or update the bump pull request
+        if: steps.rewrite.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
           branch: automation/update-sandhi-formula
