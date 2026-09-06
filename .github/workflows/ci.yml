@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
-  pull_request_target:
+  pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, ready_for_review]
 
@@ -15,34 +15,12 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  CI_REF: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.sha }}
+  CI_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
 jobs:
-  authorize-owner-private:
-    name: Authorize owner private CI
-    if: >-
-      github.event_name == 'pull_request_target' &&
-      github.actor_id == '5168752' &&
-      github.event.pull_request.user.id == 5168752 &&
-      github.event.pull_request.head.repo.full_name == github.repository
-    environment: owner-private-ci
-    runs-on: [self-hosted, Linux, X64, public-overflow]
-    timeout-minutes: 5
-    steps:
-      - run: test "${RUNNER_ENVIRONMENT}" = "self-hosted"
-
   validate:
     name: Formula validation
-    needs: authorize-owner-private
-    if: >-
-      always() && (
-        github.event_name != 'pull_request_target' ||
-        github.actor_id != '5168752' ||
-        github.event.pull_request.user.id != 5168752 ||
-        github.event.pull_request.head.repo.full_name != github.repository ||
-        needs.authorize-owner-private.result == 'success'
-      )
-    runs-on: ${{ github.event_name == 'pull_request_target' && github.actor_id == '5168752' && github.event.pull_request.user.id == 5168752 && github.event.pull_request.head.repo.full_name == github.repository && fromJSON('["self-hosted","Linux","X64","public-overflow"]') || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -73,15 +51,7 @@ jobs:
   formulas:
     name: Brew audit + install tests
     needs: validate
-    if: >-
-      always() && (
-        github.event_name != 'pull_request_target' ||
-        github.actor_id != '5168752' ||
-        github.event.pull_request.user.id != 5168752 ||
-        github.event.pull_request.head.repo.full_name != github.repository ||
-        needs.validate.result == 'success'
-      )
-    runs-on: ${{ github.event_name == 'pull_request_target' && github.actor_id == '5168752' && github.event.pull_request.user.id == 5168752 && github.event.pull_request.head.repo.full_name == github.repository && fromJSON('["self-hosted","Linux","X64","public-overflow"]') || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -104,26 +74,22 @@ jobs:
           brew audit --formula \
             anvai-labs/tap/sandhi \
             anvai-labs/tap/sentinelpass \
-            anvai-labs/tap/victor
+            anvai-labs/tap/victor \
+            anvai-labs/tap/agentbrowser \
+            anvai-labs/tap/inferflux
       - name: Install every formula from the tap
         run: |
-          brew install anvai-labs/tap/sandhi anvai-labs/tap/sentinelpass anvai-labs/tap/victor
+          brew install anvai-labs/tap/sandhi anvai-labs/tap/sentinelpass anvai-labs/tap/victor \
+            anvai-labs/tap/agentbrowser anvai-labs/tap/inferflux
       - name: Run every formula test block
         run: |
-          brew test anvai-labs/tap/sandhi anvai-labs/tap/sentinelpass anvai-labs/tap/victor
+          brew test anvai-labs/tap/sandhi anvai-labs/tap/sentinelpass anvai-labs/tap/victor \
+            anvai-labs/tap/agentbrowser anvai-labs/tap/inferflux
 
   ci-success:
     name: CI Success
-    needs: [authorize-owner-private, validate, formulas]
-    if: >-
-      always() && (
-        github.event_name != 'pull_request_target' ||
-        github.actor_id != '5168752' ||
-        github.event.pull_request.user.id != 5168752 ||
-        github.event.pull_request.head.repo.full_name != github.repository ||
-        needs.authorize-owner-private.result == 'success'
-      )
-    runs-on: ${{ github.event_name == 'pull_request_target' && github.actor_id == '5168752' && github.event.pull_request.user.id == 5168752 && github.event.pull_request.head.repo.full_name == github.repository && fromJSON('["self-hosted","Linux","X64","public-overflow"]') || 'ubuntu-latest' }}
+    needs: [validate, formulas]
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - env:
