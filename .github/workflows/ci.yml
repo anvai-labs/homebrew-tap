@@ -75,15 +75,16 @@ jobs:
             anvai-labs/tap/sandhi \
             anvai-labs/tap/sentinelpass \
             anvai-labs/tap/victor \
-            anvai-labs/tap/agentbrowser
+            anvai-labs/tap/agentbrowser \
+            anvai-labs/tap/inferflux
       - name: Install every formula from the tap
         run: |
           brew install anvai-labs/tap/sandhi anvai-labs/tap/sentinelpass anvai-labs/tap/victor \
-            anvai-labs/tap/agentbrowser
+            anvai-labs/tap/agentbrowser anvai-labs/tap/inferflux
       - name: Run every formula test block
         run: |
           brew test anvai-labs/tap/sandhi anvai-labs/tap/sentinelpass anvai-labs/tap/victor \
-            anvai-labs/tap/agentbrowser
+            anvai-labs/tap/agentbrowser anvai-labs/tap/inferflux
 
   ci-success:
     name: CI Success
