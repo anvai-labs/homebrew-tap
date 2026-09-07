@@ -68,9 +68,11 @@ below). Install from `anvai-labs/tap`.
 new tag (e.g. `v0.2.1`) — it downloads the release assets, recomputes the
 SHA-256s, and commits the formula update.
 
-`sentinelpass`: edit `Formula/sentinelpass.rb` (the version strings in the two
-URLs + the two `sha256` lines; the sums are also published in each release's
-`sha256sums.txt`). The exact procedure — run it from a scratch clone of this tap:
+`sentinelpass`: run **Actions → Update SentinelPass Formula** in this
+repository with the new tag (e.g. `v0.9.0`) — same flow as sandhi: it
+downloads the release assets, recomputes the SHA-256s, and opens the bump PR
+with a changed-file guard. The manual procedure, if you ever need to do it by
+hand — run it from a scratch clone of this tap:
 
 ```bash
 V=<new version>   # e.g. V=0.8.0
@@ -82,17 +84,16 @@ curl -fsSL "https://github.com/anvai-labs/sentinelpass/releases/download/v${V}/s
 
 then replace `v${V}` in both URLs (the tag path and the tarball names) and set
 the two `sha256` lines (macOS sum first). Nothing else changes — brew detects
-the version from the URLs. The upstream automation
-(`anvai-labs/sentinelpass` release.yml → "Bump Homebrew formula" job, backed
-by `scripts/bump-homebrew-formula.sh`) performs exactly this bump, and
-`TAP_TOKEN` was configured on that repository on 2026-08-31, and the
-automation has since **proven itself end to end**: the v0.8.0 release bumped
-this formula automatically (commit `a258100`, sums verified against
-`sha256sums.txt`). Keep the commands above: they are the fallback if the job
-skips again, and they double as the diff-shape check (they reproduce the
-bot's exact change). Asset names are
+the version from the URLs. Keep the commands above: they double as the
+diff-shape check (they reproduce the bot's exact change). Asset names are
 arch-unnamed (`-macos.tar.gz` is arm64-only), so until upstream renames them
 per-arch the formula cannot cover more platforms than these two tarballs.
+
+Upstream's own release.yml "Bump Homebrew formula" job is retired for this
+purpose: it pushed the bump directly to `main`, which checks-only branch
+protection rejects (GH006, required "CI Success" — direct pushes can never
+satisfy it), so it has failed on every release since v0.9.0. Bumps come from
+this repository instead.
 
 `victor`: automatic — `update-formula.yml` polls PyPI every 6 hours (it rewrites only the
 sdist `url`/`sha256`). victor-ai itself is installed from that sdist; its dependency closure
