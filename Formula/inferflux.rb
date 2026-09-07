@@ -7,15 +7,18 @@ class Inferflux < Formula
   license "Apache-2.0"
 
   # Prebuilt cpack archives from inferflux's Release Packaging tag path
-  # (macOS leg builds on arm64, Linux leg on x86_64). Versions are literal
-  # so brew detects them from the URL; the Update Inferflux Formula
-  # workflow rewrites them plus the sha256 lines.
+  # (macOS leg builds on arm64, Linux legs on x86_64 and native arm64).
+  # Versions are literal so brew detects them from the URL; the Update
+  # Inferflux Formula workflow rewrites them plus the sha256 lines.
   if OS.mac? && Hardware::CPU.arm64?
-    url "https://github.com/anvai-labs/inferflux/releases/download/v0.1.0/inferflux-0.1.0-Darwin-arm64.tar.gz"
-    sha256 "75ed7b849114b862d6b2fe536d733b734a0ebd0f8af7970d070e2296189b2778"
+    url "https://github.com/anvai-labs/inferflux/releases/download/v0.1.1/inferflux-0.1.1-Darwin-arm64.tar.gz"
+    sha256 "07c3852cf13439a782bd841b36cade7a2eed639ce5303893ff8b494fdfebe721"
   elsif OS.linux? && Hardware::CPU.intel?
-    url "https://github.com/anvai-labs/inferflux/releases/download/v0.1.0/inferflux-0.1.0-Linux-x86_64.tar.gz"
-    sha256 "ac31f4312ecb93551d25b50832b1134929d4c650f0369f3cc3376e972c4deb3a"
+    url "https://github.com/anvai-labs/inferflux/releases/download/v0.1.1/inferflux-0.1.1-Linux-x86_64.tar.gz"
+    sha256 "6665aa83146b4faf2535dfcbc0f0039f97a2c81bc452909ab26ed5691197022c"
+  elsif OS.linux? && Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
+    url "https://github.com/anvai-labs/inferflux/releases/download/v0.1.1/inferflux-0.1.1-Linux-aarch64.tar.gz"
+    sha256 "3b3dbb3cfedb723a7fe0a7406368618cd6be61644a6e1b365c719ba5ba506554"
   end
 
   livecheck do

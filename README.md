@@ -26,7 +26,7 @@ URL is spelled out so the source is never ambiguous.)
 | `sentinelpass` | `sentinelpass` + `sentinelpass-host` + `sentinelpass-ui` (+ `-daemon` on Linux) | macOS arm64, Linux x86_64 | [anvai-labs/sentinelpass](https://github.com/anvai-labs/sentinelpass) |
 | `victor` | `victor` (AI coding assistant; PyPI virtualenv) | macOS + Linux | [anvai-labs/victor](https://github.com/anvai-labs/victor) |
 | `agentbrowser` | `agentbrowser`, `agentbrowser-server`, `agentbrowser-mcp` (agent-native browser service: CLI, service daemon, MCP server) | macOS arm64, macOS x64, Linux x86_64, Linux arm64 | [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) |
-| `inferflux` | `inferfluxd` (C++ LLM inference server) + `inferctl` (operator CLI) | macOS arm64, Linux x86_64 | [anvai-labs/inferflux](https://github.com/anvai-labs/inferflux) |
+| `inferflux` | `inferfluxd` (C++ LLM inference server) + `inferctl` (operator CLI) | macOS arm64, Linux x86_64, Linux arm64 | [anvai-labs/inferflux](https://github.com/anvai-labs/inferflux) |
 
 ### Running sandhi as a service
 
@@ -51,7 +51,7 @@ public reachability, macOS+Linux coverage):
 | proximaDB | skip | database server, no macOS build; its deb/rpm/msi cover Linux/Windows. **Decision 2026-08-31: stays skipped** (standing default; revisit only if macOS builds get funded upstream) |
 | agentbrowser | **live** (formula since 2026-08-31) | was `anvaiops/agentbrowser` (private); the owner chose to make it public and it moved to [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) on 2026-08-31 — raw per-target binaries + `sha256sums.txt` per release; the formula ships all four unix targets (CLI binary added in v1.8.2 alongside the MCP binary and server tarball) |
 | ibkrtrading (anvaiops) | skip | private + no releases |
-| inferflux | **live** (formula since 2026-09-06) | first release v0.1.0 (2026-09-04) initially published asset-less — tag pushes never ran CI, so the Release Packaging workflow (cpack tgz/deb/rpm/pkg/dmg/msi + `sha256sums.txt`) never fired; fixed by adding `v*` tag triggers to inferflux CI (PRs #79/#80) and re-cutting the tag. The formula ships the Darwin-arm64 and Linux-x86_64 cpack tgz archives |
+| inferflux | **live** (formula since 2026-09-06) | first release v0.1.0 (2026-09-04) initially published asset-less — tag pushes never ran CI, so the Release Packaging workflow (cpack tgz/deb/rpm/pkg/dmg/msi + `sha256sums.txt`) never fired; fixed by adding `v*` tag triggers to inferflux CI (PRs #79/#80) and re-cutting the tag. v0.1.1 (2026-09-07) added a native Linux-arm64 packaging leg upstream (PRs #92/#94). The formula ships the Darwin-arm64, Linux-x86_64, and Linux-aarch64 cpack tgz archives |
 | victor verticals / registry / firmus / interviewer / stock-market-prediction / anvaiops | skip | Python libraries and services; `pipx`/`uv` remain the right installers |
 | reasoning-engine / LLM-Inference-Service | skip | frameworks/services, not installable CLIs |
 | legacy Java/Hadoop repos | skip | sample code, not products |
