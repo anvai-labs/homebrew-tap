@@ -1,0 +1,89 @@
+name: Update SentinelPass Formula
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: SentinelPass release tag to publish (e.g. v0.9.0)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Compute SHA-256 for each platform archive
+        id: shas
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          ver="${TAG#v}"
+          mac="sentinelpass-${ver}-macos.tar.gz"
+          linux="sentinelpass-${ver}-linux.tar.gz"
+          base="https://github.com/anvai-labs/sentinelpass/releases/download/${TAG}"
+          curl -fsSL "$base/$mac"  -o mac.tgz
+          curl -fsSL "$base/$linux" -o linux.tgz
+          {
+            echo "version=$ver"
+            echo "mac_sha=$(sha256sum mac.tgz | cut -d' ' -f1)"
+            echo "linux_sha=$(sha256sum linux.tgz | cut -d' ' -f1)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Rewrite the formula version and checksums
+        id: rewrite
+        env:
+          TAG: ${{ inputs.tag }}
+          MAC_SHA: ${{ steps.shas.outputs.mac_sha }}
+          LINUX_SHA: ${{ steps.shas.outputs.linux_sha }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, pathlib, re
+          tag = os.environ["TAG"]
+          ver = tag[1:] if tag.startswith("v") else tag
+          p = pathlib.Path("Formula/sentinelpass.rb")
+          s = p.read_text()
+          m = re.search(r"releases/download/(v[^/]+)/", s)
+          if not m:
+              raise SystemExit("cannot find the current version in Formula/sentinelpass.rb")
+          old_tag = m.group(1)
+          old_ver = old_tag[1:] if old_tag.startswith("v") else old_tag
+          if old_tag == tag:
+              raise SystemExit(0)
+          # URL path carries the v-prefixed tag; tarball names carry the bare version.
+          s = s.replace(f"/{old_tag}/", f"/{tag}/")
+          s = re.sub(rf"(sentinelpass-){re.escape(old_ver)}", rf"\g<1>{ver}", s)
+          shas = iter([os.environ["MAC_SHA"], os.environ["LINUX_SHA"]])
+          s, n = re.subn(r'(sha256 ")[0-9a-f]{64}(")', lambda mm: mm.group(1) + next(shas) + mm.group(2), s)
+          if n != 2:
+              raise SystemExit(f"expected 2 sha256 lines, replaced {n}")
+          p.write_text(s)
+          PY
+          # Only the formula counts as a change; the re-downloaded root
+          # tarballs churn on every run (gzip mtime) and must not trigger a PR.
+          if git diff --quiet -- Formula/sentinelpass.rb; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "formula already at ${TAG}"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open or update the bump pull request
+        if: steps.rewrite.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        with:
+          branch: automation/update-sentinelpass-formula
+          delete-branch: true
+          commit-message: "sentinelpass ${{ steps.shas.outputs.version }}"
+          title: "sentinelpass ${{ steps.shas.outputs.version }}"
+          body: "Automated bump: release assets downloaded, SHA-256s recomputed from the actual bytes."
