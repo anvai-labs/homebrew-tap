@@ -171,6 +171,12 @@ def main() -> int:
     packages = []
     for item in report["install"]:
         info = item["metadata"]
+        # pip's report includes the root package (victor-ai), which installs
+        # from the audited sdist — emitting it as a wheel resource too makes
+        # the sdist install over a stale pinned wheel and leaves two
+        # dist-infos in site-packages (the CLI then reports the old version).
+        if re.sub(r"[-_.]+", "-", info["name"]).lower() == "victor-ai":
+            continue
         packages.append((info["name"], info["version"]))
     packages.sort(key=lambda pair: pair[0].lower().replace("-", "_"))
 
