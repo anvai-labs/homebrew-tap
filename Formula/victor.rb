@@ -538,11 +538,6 @@ class Victor < Formula
     sha256 "9fb4c81ebbb1ce9531cce37674bbc6f1360472bc18ca9a553ede278ef7276897"
   end
 
-  resource "victor-ai" do
-    url "https://files.pythonhosted.org/packages/6d/94/832358a27f0af77081ad29392579e3aa45fe8ab4d735a7d3dc747b0541c4/victor_ai-0.9.0-py3-none-any.whl"
-    sha256 "7d00f09f02bb8cb9b68ffc56ff00a60b65238861b60a3431c347309f4ce6d831"
-  end
-
   resource "victor-contracts" do
     url "https://files.pythonhosted.org/packages/e2/bd/344780b4d5a90a185fd02eeb14beec1a23f61ca1b5188ad4041470ff0c71/victor_contracts-0.9.0-py3-none-any.whl"
     sha256 "d906afa624bc21df9611e1a5f9f0eb923d56a9306967813217cec4dabe1ac243"

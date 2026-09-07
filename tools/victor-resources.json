@@ -403,10 +403,6 @@
     "pure": "urllib3-2.7.0-py3-none-any.whl",
     "version": "2.7.0"
   },
-  "victor-ai": {
-    "pure": "victor_ai-0.9.0-py3-none-any.whl",
-    "version": "0.9.0"
-  },
   "victor-contracts": {
     "pure": "victor_contracts-0.9.0-py3-none-any.whl",
     "version": "0.9.0"
