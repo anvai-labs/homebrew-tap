@@ -30,13 +30,16 @@ jobs:
           ver="${TAG#v}"
           mac="inferflux-${ver}-Darwin-arm64.tar.gz"
           linux="inferflux-${ver}-Linux-x86_64.tar.gz"
+          linux_arm="inferflux-${ver}-Linux-aarch64.tar.gz"
           base="https://github.com/anvai-labs/inferflux/releases/download/${TAG}"
           curl -fsSL "$base/$mac"  -o mac.tgz
           curl -fsSL "$base/$linux" -o linux.tgz
+          curl -fsSL "$base/$linux_arm" -o linux-arm.tgz
           {
             echo "version=$ver"
             echo "mac_sha=$(sha256sum mac.tgz | cut -d' ' -f1)"
             echo "linux_sha=$(sha256sum linux.tgz | cut -d' ' -f1)"
+            echo "linux_arm_sha=$(sha256sum linux-arm.tgz | cut -d' ' -f1)"
           } >> "$GITHUB_OUTPUT"
 
       - name: Rewrite the formula version and checksums
@@ -45,6 +48,7 @@ jobs:
           TAG: ${{ inputs.tag }}
           MAC_SHA: ${{ steps.shas.outputs.mac_sha }}
           LINUX_SHA: ${{ steps.shas.outputs.linux_sha }}
+          LINUX_ARM_SHA: ${{ steps.shas.outputs.linux_arm_sha }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
@@ -60,10 +64,12 @@ jobs:
               raise SystemExit(0)
           s = s.replace(f"/{old_tag}/", f"/{tag}/")
           s = re.sub(rf"(inferflux-){re.escape(old_tag[1:])}", rf"\g<1>{tag[1:]}", s)
-          shas = iter([os.environ["MAC_SHA"], os.environ["LINUX_SHA"]])
+          # Declaration order matches the formula: darwin-arm64,
+          # linux-x86_64, then the linux-aarch64 clause added in v0.1.1.
+          shas = iter([os.environ["MAC_SHA"], os.environ["LINUX_SHA"], os.environ["LINUX_ARM_SHA"]])
           s, n = re.subn(r'(sha256 ")[0-9a-f]{64}(")', lambda mm: mm.group(1) + next(shas) + mm.group(2), s)
-          if n != 2:
-              raise SystemExit(f"expected 2 sha256 lines, replaced {n}")
+          if n != 3:
+              raise SystemExit(f"expected 3 sha256 lines, replaced {n}")
           p.write_text(s)
           PY
           # Only the formula counts as a change; the re-downloaded root
