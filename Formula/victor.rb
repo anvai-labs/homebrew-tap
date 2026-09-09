@@ -6,8 +6,8 @@ class Victor < Formula
 
   desc "Enterprise-Ready AI Coding Assistant - Any model, any provider"
   homepage "https://github.com/anvai-labs/victor"
-  url "https://files.pythonhosted.org/packages/d1/bd/7e5fc340819f5d1f0b934b006a05966a55e987505cefbd58bab4ddd2dc58/victor_ai-0.9.1.tar.gz"
-  sha256 "4725e6ffb97d0cf96fcca025602533d475267979b537782d8dfdd53a74b3c78e"
+  url "https://files.pythonhosted.org/packages/23/aa/4534ca831a7d1bd26a889bd966dc386790fb31c71155050c09d338ab5c25/victor_ai-0.9.2.tar.gz"
+  sha256 "e5d8779c84e8b2ba4199bbb90203223c21d73484509e702aa565e941565f5c10"
   license "Apache-2.0"
 
   depends_on "libyaml"
@@ -29,6 +29,16 @@ class Victor < Formula
   # headerpad, so brew's keg dylib-ID rewrite fails on them; @rpath names are
   # already relocatable, so leave them be.
   preserve_rpath
+
+  resource "setuptools" do
+    url "https://files.pythonhosted.org/packages/95/9c/c510029fc6ef33a6275cd2c5d3cecd6613dfd6aa401d57c54f1c18852ccf/setuptools-84.0.0-py3-none-any.whl"
+    sha256 "51a52592b3b99e102b609654876bd65f19f999935166d1352678931132b0c670"
+  end
+
+  resource "wheel" do
+    url "https://files.pythonhosted.org/packages/2e/29/69cfbb602cd91690c55d38ba9fe53e6a7e76a6fa647bf38f19c138d25449/wheel-0.48.0-py3-none-any.whl"
+    sha256 "3217dcc807155e45db462d7ef2431f5ddda0d7273b700d05a67b271ceb1287ab"
+  end
 
   resource "aiofiles" do
     url "https://files.pythonhosted.org/packages/bc/8a/340a1555ae33d7354dbca4faa54948d76d89a27ceef032c8c3bc661d003e/aiofiles-25.1.0-py3-none-any.whl"
@@ -571,7 +581,7 @@ class Victor < Formula
       wheel
     end
     venv.pip_install wheels
-    venv.pip_install T.must(buildpath)
+    venv.pip_install T.must(buildpath), build_isolation: false
     # Copy victor's console scripts (per its dist-info entry points) rather
     # than using the stock symlink helper: pip skips entry points it cannot
     # generate (e.g. "benchmark"), so link exactly what exists.

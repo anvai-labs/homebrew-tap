@@ -96,10 +96,12 @@ satisfy it), so it has failed on every release since v0.9.0. Bumps come from
 this repository instead.
 
 `victor`: automatic — `update-formula.yml` polls PyPI every 6 hours (it rewrites only the
-sdist `url`/`sha256`). victor-ai itself is installed from that sdist; its dependency closure
-ships as pinned wheel resources. After a major bump that changes dependency constraints,
-regenerate them: `tools/gen-victor-resources.py` (see its header) + `tools/assemble-victor-formula.py`,
-then `brew style --fix Formula/victor.rb` and re-run `brew install && brew test`.
+sdist `url`/`sha256`). victor-ai itself is installed from that sdist; its PEP 517 build
+backend (`setuptools`/`wheel`) and runtime dependency closure ship as pinned wheel resources
+so `brew install` does not contact PyPI after Homebrew has fetched declared resources. After
+a major bump that changes dependency constraints, regenerate them:
+`tools/gen-victor-resources.py` (see its header) + `tools/assemble-victor-formula.py`, then
+`brew style --fix Formula/victor.rb` and re-run `brew install && brew test`.
 
 `inferflux`: run **Actions → Update Inferflux Formula** in this repository with the new tag
 (e.g. `v0.1.1`) — same shape as the sandhi bot: it downloads the Darwin-arm64 and
