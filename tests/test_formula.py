@@ -36,6 +36,19 @@ class VictorFormulaTests(unittest.TestCase):
             digest = hashlib.sha256(response.read()).hexdigest()
         self.assertEqual(digest, formula_field("sha256"))
 
+    def test_formula_vendors_pep517_build_requirements(self):
+        text = FORMULA.read_text(encoding="utf-8")
+
+        self.assertRegex(text, re.compile(r'^\s*resource "setuptools" do$', re.MULTILINE))
+        self.assertRegex(text, re.compile(r'^\s*resource "wheel" do$', re.MULTILINE))
+        self.assertIn("setuptools-", text)
+        self.assertIn("wheel-", text)
+
+    def test_formula_installs_victor_sdist_without_build_isolation(self):
+        text = FORMULA.read_text(encoding="utf-8")
+
+        self.assertIn("venv.pip_install T.must(buildpath), build_isolation: false", text)
+
 
 if __name__ == "__main__":
     unittest.main()

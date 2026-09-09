@@ -2,9 +2,11 @@
 """Generate the wheel `resource` stanzas for Formula/victor.rb.
 
 The victor formula installs victor-ai itself from its audited PyPI sdist (the
-`url`/`sha256` the update workflow rewrites) but its ~70-dependency closure
-must ship as pinned **wheel** resources — building orjson/pydantic-core/tiktoken
-et al. from sdists would require a Rust toolchain on every user machine.
+`url`/`sha256` the update workflow rewrites) but its build backend and
+~70-dependency closure must ship as pinned **wheel** resources. Building
+orjson/pydantic-core/tiktoken et al. from sdists would require a Rust toolchain
+on every user machine, and leaving PEP 517 build requirements unvendored makes
+brew try to contact PyPI during install.
 
 Usage (from a checkout of this tap, with any Python 3.12 and network):
 
@@ -122,6 +124,15 @@ def best(files: list[dict[str, Any]], bucket: str) -> dict[str, Any] | None:
 
 BUCKETS = ["pure", "mac_arm", "mac_x64", "linux_x64"]
 
+# PEP 517 build requirements from victor-ai's pyproject.toml. These must be
+# installed into the venv before victor-ai's sdist is installed with build
+# isolation disabled; otherwise pip creates an isolated build env and tries to
+# download them during `brew install`.
+BUILD_REQUIREMENTS = [
+    ("setuptools", "84.0.0"),
+    ("wheel", "0.48.0"),
+]
+
 
 def emit(picks_by_name: list[tuple[str, dict[str, dict[str, Any]]]], digests: dict[str, str]) -> str:
     """Emit one `resource` block per package with per-platform url/sha256 legs
@@ -168,7 +179,9 @@ def main() -> int:
     args = parser.parse_args()
 
     report = json.load(open(args.report))
-    packages = []
+    seen = {re.sub(r"[-_.]+", "-", name).lower() for name, _ in BUILD_REQUIREMENTS}
+    packages = list(BUILD_REQUIREMENTS)
+    runtime_packages = []
     for item in report["install"]:
         info = item["metadata"]
         # pip's report includes the root package (victor-ai), which installs
@@ -177,8 +190,12 @@ def main() -> int:
         # dist-infos in site-packages (the CLI then reports the old version).
         if re.sub(r"[-_.]+", "-", info["name"]).lower() == "victor-ai":
             continue
-        packages.append((info["name"], info["version"]))
-    packages.sort(key=lambda pair: pair[0].lower().replace("-", "_"))
+        normalized = re.sub(r"[-_.]+", "-", info["name"]).lower()
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        runtime_packages.append((info["name"], info["version"]))
+    packages.extend(sorted(runtime_packages, key=lambda pair: pair[0].lower().replace("-", "_")))
 
     cache = pathlib.Path(args.cache)
     manifest: dict[str, Any] = {}
