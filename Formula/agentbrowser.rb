@@ -120,7 +120,7 @@ class Agentbrowser < Formula
   service do
     run [opt_bin/"agentbrowser-server"]
     environment_variables "HOST" => "127.0.0.1",
-                          "PORT" => "3000"
+                          "PORT" => "5709"
     keep_alive true
     log_path var/"log/agentbrowser-server.log"
     error_log_path var/"log/agentbrowser-server.err.log"
@@ -131,7 +131,7 @@ class Agentbrowser < Formula
       One install, all three:
 
         the service:     brew services start anvai-labs/tap/agentbrowser
-                         (listens on 127.0.0.1:3000; first start bootstraps
+                         (listens on 127.0.0.1:5709; first start bootstraps
                          Chromium into var/agentbrowser/browsers)
         the CLI:         #{opt_bin}/agentbrowser --help
                          (session create --no-headless --idle-timeout 3600000,
@@ -149,7 +149,7 @@ class Agentbrowser < Formula
           command = "#{opt_bin}/agentbrowser-mcp"
 
       The browser tools drive the service (default
-      http://localhost:3000; override with AGENTBROWSER_BASE_URL,
+      http://localhost:5709; override with AGENTBROWSER_BASE_URL,
       authenticate with AGENTBROWSER_API_KEY — set keys via the service's
       AGENTBROWSER_API_KEYS env in a launchd override if you expose it).
     EOS
