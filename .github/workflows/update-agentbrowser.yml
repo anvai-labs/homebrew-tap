@@ -28,25 +28,26 @@ jobs:
         run: |
           set -euo pipefail
           base="https://github.com/anvai-labs/agentbrowser/releases/download/${TAG}"
+          artifact="${RUNNER_TEMP}/agentbrowser-release-artifact"
           # Order matches the formula's declaration order: the four mcp
           # binaries (sha0-3), then the server tarballs (sha4-7).
           i=0
           for target in darwin-arm64 darwin-x64 linux-arm64 linux-x64; do
-            curl -fsSL "$base/agentbrowser-mcp-$target" -o ab.bin
-            echo "sha$i=$(sha256sum ab.bin | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+            curl -fsSL "$base/agentbrowser-mcp-$target" -o "$artifact"
+            echo "sha$i=$(sha256sum "$artifact" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
             i=$((i+1))
           done
           for target in darwin-arm64 darwin-x64 linux-x64 linux-arm64; do
-            curl -fsSL "$base/agentbrowser-server-$target.tar.gz" -o ab.tgz
-            echo "sha$i=$(sha256sum ab.tgz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+            curl -fsSL "$base/agentbrowser-server-$target.tar.gz" -o "$artifact"
+            echo "sha$i=$(sha256sum "$artifact" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
             i=$((i+1))
           done
           # CLI binaries (since v1.8.2); declaration order in the formula:
           # mcp urls (sha0-3), server resource (sha4-7), cli resource
           # (sha8-11: mac-arm, mac-x64, linux-arm, linux-x64).
           for target in darwin-arm64 darwin-x64 linux-arm64 linux-x64; do
-            curl -fsSL "$base/agentbrowser-cli-$target" -o ab.cli
-            echo "sha$i=$(sha256sum ab.cli | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+            curl -fsSL "$base/agentbrowser-cli-$target" -o "$artifact"
+            echo "sha$i=$(sha256sum "$artifact" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
             i=$((i+1))
           done
 
@@ -88,8 +89,8 @@ jobs:
               raise SystemExit(f"expected 12 sha256 lines, replaced {n}")
           p.write_text(s)
           PY
-          # Only the formula counts as a change; the re-downloaded root
-          # artifacts churn on every run (gzip mtime) and must not trigger a PR.
+          # Only the formula counts as a change; downloaded artifacts stay in
+          # RUNNER_TEMP and must not enter the pull request.
           if git diff --quiet -- Formula/agentbrowser.rb; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "formula already at ${TAG}"
@@ -106,3 +107,5 @@ jobs:
           commit-message: "agentbrowser ${{ inputs.tag }}"
           title: "agentbrowser ${{ inputs.tag }}"
           body: "Automated bump: release assets downloaded, SHA-256s recomputed from the actual bytes."
+          add-paths: |
+            Formula/agentbrowser.rb
