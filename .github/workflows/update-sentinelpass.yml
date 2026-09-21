@@ -87,3 +87,5 @@ jobs:
           commit-message: "sentinelpass ${{ steps.shas.outputs.version }}"
           title: "sentinelpass ${{ steps.shas.outputs.version }}"
           body: "Automated bump: release assets downloaded, SHA-256s recomputed from the actual bytes."
+          add-paths: |
+            Formula/sentinelpass.rb
