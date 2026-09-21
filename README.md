@@ -101,14 +101,14 @@ shasum -a 256 /tmp/sp-macos.tgz /tmp/sp-linux.tgz /tmp/sp.dmg
 curl -fsSL "https://github.com/anvai-labs/sentinelpass/releases/download/v${V}/sha256sums.txt"   # cross-check all three sums
 ```
 
-then replace `v${V}` in both URLs (the tag path and the asset names) and set
-the two `sha256` lines in the formula (macOS sum first) and the `sha256 arm:`
-line **plus the `version` stanza** in the cask (cask versions are literal too,
-so the stanza must move with the URL). Nothing else changes — brew detects the
-formula's version from the URL. Keep the commands above: they double as the
-diff-shape check (they reproduce the bot's exact change). Asset names are
-arch-unnamed (`-macos.tar.gz` and `-macos.dmg` are arm64-only), so until
-upstream renames them per-arch the formula and cask cannot cover more
+then in the formula replace `v${V}` in both URLs (the tag path and the tarball
+names) and set the two `sha256` lines (macOS sum first); in the cask rewrite
+only the `version` stanza and the `sha256 arm:` line — the cask URL is fully
+version-templated, and cask audit requires it to stay that way (a literal URL
+is treated as unversioned). Nothing else changes. Keep the commands above:
+they double as the diff-shape check (they reproduce the bot's exact change).
+Asset names are arch-unnamed (`-macos.tar.gz` and `-macos.dmg` are arm64-only),
+so until upstream renames them per-arch the formula and cask cannot cover more
 platforms than these.
 
 Upstream's own release.yml "Bump Homebrew formula" job is retired for this

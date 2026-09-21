@@ -1,13 +1,14 @@
 cask "sentinelpass" do
-  # Version is literal (tap convention, mirrors the formulas): brew detects
-  # it and the bump bot rewrites URL, version and checksum in lockstep.
+  # The version stanza is the single source of truth for bumps: the URL is
+  # fully version-templated (cask audit requires a versioned URL), so the
+  # bump bot rewrites only this stanza and the arm checksum below.
   version "0.13.0"
   # Arm64-only upstream; the DMG asset name is arch-generic. The sum is
   # recomputed from the actual downloaded DMG and cross-checked against the
   # release's sha256sums.txt on every bump.
   sha256 arm: "b487df257a56b1881b10df2dde4c2fbb5aac8c1b7f359b00769754f798452a5a"
 
-  url "https://github.com/anvai-labs/sentinelpass/releases/download/v0.13.0/sentinelpass-0.13.0-macos.dmg"
+  url "https://github.com/anvai-labs/sentinelpass/releases/download/v#{version}/sentinelpass-#{version}-macos.dmg"
   name "SentinelPass"
   desc "Local-first password manager with browser autofill (desktop app)"
   homepage "https://github.com/anvai-labs/sentinelpass"
