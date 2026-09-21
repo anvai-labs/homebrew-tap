@@ -14,17 +14,17 @@ class Agentbrowser < Formula
   # detects them from the URL; the Update Agentbrowser Formula workflow
   # rewrites them plus the sha256 lines.
   if OS.mac? && Hardware::CPU.arm?
-    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.0/agentbrowser-mcp-darwin-arm64"
-    sha256 "90b1eafe2a3b902e5d2186eb37fbc6ca77a3d97bf9e4d0a1f42830fb7068fde7"
+    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.1/agentbrowser-mcp-darwin-arm64"
+    sha256 "8b2eb3ad221c874728d2e7f95d6d401d6cc2f04a7246c2aa2f102a97001cdbac"
   elsif OS.mac? && Hardware::CPU.intel?
-    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.0/agentbrowser-mcp-darwin-x64"
-    sha256 "816766ab21c3c0f10d3c3de4972673d165e6baf86bd5d9010cc3f9678ee5f6f2"
+    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.1/agentbrowser-mcp-darwin-x64"
+    sha256 "f044c9c3a6497a35e8a34dd7d116bce6872a43be46bd02ca93ea6c2d083e528e"
   elsif OS.linux? && Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.0/agentbrowser-mcp-linux-arm64"
-    sha256 "1a9fc85c83f27cf21519444a910f7d0ae3281b82672d22f4cb4ef260692eaa54"
+    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.1/agentbrowser-mcp-linux-arm64"
+    sha256 "7ad2ca7d9a7dc9f3294768449d820f6a1581efb43ef23a5ef968ecd5044b7171"
   elsif OS.linux? && Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.0/agentbrowser-mcp-linux-x64"
-    sha256 "9151605e67f62feee3c37cc3e099b8d9ba2dbac6dcfa477fcde7ec5dc71549c0"
+    url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.1/agentbrowser-mcp-linux-x64"
+    sha256 "0a7c3afcccaa316c92e4ffd7c65eb6f0ce69d23e43faa29a1beb244528722da6"
   end
 
   livecheck do
@@ -33,27 +33,27 @@ class Agentbrowser < Formula
     regex(%r{/tag/v?(\d+(?:\.\d+)+)$}i)
   end
 
-  depends_on "node@22"
+  depends_on "node@24"
 
   resource "server" do
     on_macos do
       on_arm do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.0/agentbrowser-server-darwin-arm64.tar.gz"
-        sha256 "5a459d0ab2070d72200d85373535a05f8150a8a216259edd9cb4b07a63e10412"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.1/agentbrowser-server-darwin-arm64.tar.gz"
+        sha256 "53c383fca7430fa9c01e80fb40e469aec279f4e9446776b2ffdb8d037e7f9d31"
       end
       on_intel do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.0/agentbrowser-server-darwin-x64.tar.gz"
-        sha256 "0c25e94626b8726c9f7cb1d95ea9c893c29622fc67869fc582553b2ba080603a"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.1/agentbrowser-server-darwin-x64.tar.gz"
+        sha256 "49d2870a049179470776802923919c31d0b636312ae429fc52ec16104af2026f"
       end
     end
     on_linux do
       on_intel do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.0/agentbrowser-server-linux-x64.tar.gz"
-        sha256 "f071c3b399d54c202490c8cea318162b21bc819b23daec2ab5f6a94ca5c91176"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.1/agentbrowser-server-linux-x64.tar.gz"
+        sha256 "ca8a903c5a5196a1299d8b8bd022774ee52f458f697a9cd744cdc3d9f8197c33"
       end
       on_arm do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.0/agentbrowser-server-linux-arm64.tar.gz"
-        sha256 "6c81179af415ce8ec834d606d7885d3ca5c7e5e4fc2e9307b08a3c60a29d2acb"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.1/agentbrowser-server-linux-arm64.tar.gz"
+        sha256 "894d0eb576fbbb69c7764884f4741b4a1ad1c1f0f18559557ff7823d1200dca7"
       end
     end
   end
@@ -61,22 +61,22 @@ class Agentbrowser < Formula
   resource "cli" do
     on_macos do
       on_arm do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.0/agentbrowser-cli-darwin-arm64"
-        sha256 "1902a0443837c6d4fcc044cf9c717ff0b42f129d67c117e644967081ae5fdc58"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.1/agentbrowser-cli-darwin-arm64"
+        sha256 "9736d751ea9e478a9865304881fd4a5aa13cb6910f5451a59dc9395d323f250b"
       end
       on_intel do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.0/agentbrowser-cli-darwin-x64"
-        sha256 "022c84c4d1f8a870640a5ce9337b57a99c5b039a4d1f556aa59ac4759b2495e7"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.1/agentbrowser-cli-darwin-x64"
+        sha256 "cd32299860539e00b9a004bc030b21b408233a972f02ac99d85a7073e51b1c49"
       end
     end
     on_linux do
       on_arm do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.0/agentbrowser-cli-linux-arm64"
-        sha256 "4aa06e92faba00b0e741ced46acbfd2e6f440d2c770fbc37ab5288585add5ee7"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.1/agentbrowser-cli-linux-arm64"
+        sha256 "bf6b72e5c612b9c0016ed53931abe50d62a91da0b9b87a0442eca39eff033283"
       end
       on_intel do
-        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.0/agentbrowser-cli-linux-x64"
-        sha256 "1cee73dd5f9300568f148e36e529182301e6ec2ff5d141d05feffd9ac319789b"
+        url "https://github.com/anvai-labs/agentbrowser/releases/download/v1.9.1/agentbrowser-cli-linux-x64"
+        sha256 "cd6e9a5e0eb4314f72b44888949095f69646469805f19d1d8de6d6844ef21901"
       end
     end
   end
@@ -104,7 +104,7 @@ class Agentbrowser < Formula
 
     # Service wrapper: keeps the Playwright browser cache under var and
     # bootstraps Chromium on first run (headless shell + browser, ~100 MB).
-    node_bin = formula_opt_bin("node@22")/"node"
+    node_bin = formula_opt_bin("node@24")/"node"
     (bin/"agentbrowser-server").write <<~EOS
       #!/bin/bash
       export PLAYWRIGHT_BROWSERS_PATH="${PLAYWRIGHT_BROWSERS_PATH:-#{var}/agentbrowser/browsers}"
@@ -135,7 +135,8 @@ class Agentbrowser < Formula
                          Chromium into var/agentbrowser/browsers)
         the CLI:         #{opt_bin}/agentbrowser --help
                          (session create --no-headless --idle-timeout 3600000,
-                          snapshot/plan, session cookies, session trace)
+                          snapshot/plan, session create --cookies-file FILE,
+                          session cookies ID --output FILE, session trace)
         the MCP server:  spawn #{opt_bin}/agentbrowser-mcp — no args (stdio)
 
       Wire up an MCP client:
@@ -148,10 +149,10 @@ class Agentbrowser < Formula
           [mcp_servers.agentbrowser]
           command = "#{opt_bin}/agentbrowser-mcp"
 
-      The browser tools drive the service (default
-      http://localhost:5709; override with AGENTBROWSER_BASE_URL,
+      The clients drive the service (default http://localhost:5709;
+      CLI override: --base-url; MCP override: AGENTBROWSER_BASE_URL),
       authenticate with AGENTBROWSER_API_KEY — set keys via the service's
-      AGENTBROWSER_API_KEYS env in a launchd override if you expose it).
+      AGENTBROWSER_API_KEYS env in a launchd override if you expose it.
     EOS
   end
 
@@ -160,5 +161,8 @@ class Agentbrowser < Formula
     # serving and never exits, so probe it with stdin closed.
     system "/bin/sh", "-c", %Q("#{bin}/agentbrowser-mcp" --help </dev/null)
     system "#{bin}/agentbrowser", "--help"
+    assert_equal version.to_s, shell_output("#{bin}/agentbrowser --version").strip
+    assert_match "--cookies-file", shell_output("#{bin}/agentbrowser session create --help")
+    assert_match "--output", shell_output("#{bin}/agentbrowser session cookies --help")
   end
 end
