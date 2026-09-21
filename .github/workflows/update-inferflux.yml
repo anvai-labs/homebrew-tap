@@ -90,3 +90,5 @@ jobs:
           commit-message: "inferflux ${{ steps.shas.outputs.version }}"
           title: "inferflux ${{ steps.shas.outputs.version }}"
           body: "Automated bump: release assets downloaded, SHA-256s recomputed from the actual bytes."
+          add-paths: |
+            Formula/inferflux.rb

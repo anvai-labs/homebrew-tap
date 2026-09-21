@@ -1,1 +1,7 @@
 __pycache__/
+
+# Release-asset downloads from bot runs and local formula verification —
+# the tap ships URLs + SHA-256s, never the artifact bytes.
+/*.tgz
+/*.bin
+/shot.json

@@ -84,3 +84,5 @@ jobs:
           commit-message: "sandhi ${{ steps.shas.outputs.version }}"
           title: "sandhi ${{ steps.shas.outputs.version }}"
           body: "Automated bump: release assets downloaded, SHA-256s recomputed from the actual bytes."
+          add-paths: |
+            Formula/sandhi.rb
