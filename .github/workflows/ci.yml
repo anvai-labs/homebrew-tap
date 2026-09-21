@@ -45,6 +45,8 @@ jobs:
           ruby --version
       - name: Check Ruby syntax of every formula
         run: for f in Formula/*.rb; do ruby -c "$f"; done
+      - name: Check Ruby syntax of every cask
+        run: for f in Casks/*.rb; do ruby -c "$f"; done
       - name: Run formula release-contract tests
         run: python -m unittest discover -s tests -v
 
@@ -86,15 +88,81 @@ jobs:
           brew test anvai-labs/tap/sandhi anvai-labs/tap/sentinelpass anvai-labs/tap/victor \
             anvai-labs/tap/agentbrowser anvai-labs/tap/inferflux
 
+  casks:
+    name: Cask audit + install smoke (macOS)
+    needs: validate
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.CI_REF }}
+          persist-credentials: false
+          clean: true
+      - uses: Homebrew/actions/setup-homebrew@23156a3d9674d7f52f74f1a58979ec4d77847166
+      - name: Point the pre-cloned tap at the checked-out ref
+        run: |
+          TAP_DIR="$(brew --repository)/Library/Taps/anvai-labs/homebrew-tap"
+          git -C "$TAP_DIR" fetch -q origin "+${{ env.CI_REF }}"
+          git -C "$TAP_DIR" checkout -q -B ci-under-test FETCH_HEAD
+      - name: Audit every cask
+        run: brew audit --cask anvai-labs/tap/sentinelpass
+      - name: Install the cask
+        run: brew install --cask anvai-labs/tap/sentinelpass
+      - name: Smoke the installed app
+        run: |
+          set -euo pipefail
+          APP="/Applications/SentinelPass.app"
+          test -d "$APP"
+          # Bundle identity and version must match the cask metadata.
+          test "$(plutil -extract CFBundleIdentifier raw "$APP/Contents/Info.plist")" = "com.sentinelpass.app"
+          bundle_ver="$(plutil -extract CFBundleShortVersionString raw "$APP/Contents/Info.plist")"
+          cask_ver="$(brew info --cask anvai-labs/tap/sentinelpass --json=v2 | jq -r '.casks[0].version')"
+          test "$bundle_ver" = "$cask_ver"
+          # Main executable is an arm64 Mach-O.
+          lipo -archs "$APP/Contents/MacOS/SentinelPass" | grep -q arm64
+          # Self-containment: daemon + browser host sidecars survived the
+          # install. Presence only — never execute them (the daemon accepts
+          # no probe args and takes the per-vault lock).
+          RES_BIN="$(find "$APP" -type d -path '*resources/bin' | head -1)"
+          test -n "$RES_BIN"
+          test -x "$RES_BIN/sentinelpass-daemon"
+          test -x "$RES_BIN/sentinelpass-host"
+          # Homebrew quarantines cask installs; assert the user-side state our
+          # caveats document.
+          xattr -p com.apple.quarantine "$APP" >/dev/null
+          # Ad-hoc builds cannot pass Gatekeeper and `open` would hang on the
+          # "damaged" dialog. Notarized builds must pass — this branch
+          # activates itself when upstream signs (issue #148).
+          if codesign -dv "$APP" 2>&1 | grep -q 'Signature=adhoc'; then
+            echo "ad-hoc signature: notarization pending (upstream #148); skipping Gatekeeper + launch checks"
+          else
+            spctl --assess --type execute --verbose=4 "$APP"
+            open -a "SentinelPass"
+            ok=""
+            for _ in $(seq 1 30); do
+              if pgrep -f "$APP/Contents/MacOS" >/dev/null; then ok=1; break; fi
+              sleep 2
+            done
+            test -n "$ok" || { echo "::error::app did not launch"; exit 1; }
+            osascript -e 'tell application "SentinelPass" to quit'
+          fi
+      - name: Uninstall is clean
+        run: |
+          brew uninstall --cask anvai-labs/tap/sentinelpass
+          test ! -d "/Applications/SentinelPass.app"
+
   ci-success:
     name: CI Success
-    needs: [validate, formulas]
+    needs: [validate, formulas, casks]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - env:
           VALIDATION_RESULT: ${{ needs.validate.result }}
           FORMULAS_RESULT: ${{ needs.formulas.result }}
+          CASKS_RESULT: ${{ needs.casks.result }}
         run: |
           test "${VALIDATION_RESULT}" = "success"
           test "${FORMULAS_RESULT}" = "success"
+          test "${CASKS_RESULT}" = "success"

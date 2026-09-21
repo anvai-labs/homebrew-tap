@@ -10,6 +10,7 @@ release workflow, selecting the correct archive for your platform.
 brew tap anvai-labs/tap https://github.com/anvai-labs/homebrew-tap
 brew install anvai-labs/tap/sandhi
 brew install anvai-labs/tap/sentinelpass
+brew install --cask anvai-labs/tap/sentinelpass   # desktop app — see Casks below
 brew install anvai-labs/tap/victor
 brew install anvai-labs/tap/agentbrowser
 brew install anvai-labs/tap/inferflux
@@ -27,6 +28,20 @@ URL is spelled out so the source is never ambiguous.)
 | `victor` | `victor` (AI coding assistant; PyPI virtualenv) | macOS + Linux | [anvai-labs/victor](https://github.com/anvai-labs/victor) |
 | `agentbrowser` | `agentbrowser`, `agentbrowser-server`, `agentbrowser-mcp` (agent-native browser service: CLI, service daemon, MCP server) | macOS arm64, macOS x64, Linux x86_64, Linux arm64 | [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) |
 | `inferflux` | `inferfluxd` (C++ LLM inference server) + `inferctl` (operator CLI) | macOS arm64, Linux x86_64, Linux arm64 | [anvai-labs/inferflux](https://github.com/anvai-labs/inferflux) |
+
+## Casks
+
+| Cask | Installs | Platforms | Upstream |
+|---|---|---|---|
+| `sentinelpass` | `SentinelPass.app` (desktop app; self-contained — embeds its own daemon and browser native-messaging host, manages the daemon lifecycle itself) | macOS arm64 | [anvai-labs/sentinelpass](https://github.com/anvai-labs/sentinelpass) |
+
+Formula and cask may share a token (docker precedent): bare `brew install
+sentinelpass` installs the CLI formula, `brew install --cask sentinelpass`
+installs the desktop app. Keep both channels on the same release — whichever
+UI launched last re-points the browser native-messaging manifests at its own
+host copy. The app is ad-hoc signed until upstream notarizes (sentinelpass
+issue #148), so the first launch may show a Gatekeeper "damaged" warning; the
+cask never touches the vault in `~/Library/Application Support/PasswordManager`.
 
 ### Running sandhi as a service
 
@@ -71,23 +86,28 @@ SHA-256s, and commits the formula update.
 `sentinelpass`: run **Actions → Update SentinelPass Formula** in this
 repository with the new tag (e.g. `v0.9.0`) — same flow as sandhi: it
 downloads the release assets, recomputes the SHA-256s, and opens the bump PR
-with a changed-file guard. The manual procedure, if you ever need to do it by
-hand — run it from a scratch clone of this tap:
+with a changed-file guard. The bot bumps **both** `Formula/sentinelpass.rb`
+and `Casks/sentinelpass.rb` in one PR (skipping the cask on releases that
+ship no DMG), downloads everything into `RUNNER_TEMP`, and cross-checks the
+DMG sum against the release's `sha256sums.txt`. The manual procedure, if you
+ever need to do it by hand — run it from a scratch clone of this tap:
 
 ```bash
 V=<new version>   # e.g. V=0.8.0
 curl -fsSL -o /tmp/sp-macos.tgz "https://github.com/anvai-labs/sentinelpass/releases/download/v${V}/sentinelpass-${V}-macos.tar.gz"
 curl -fsSL -o /tmp/sp-linux.tgz "https://github.com/anvai-labs/sentinelpass/releases/download/v${V}/sentinelpass-${V}-linux.tar.gz"
-shasum -a 256 /tmp/sp-macos.tgz /tmp/sp-linux.tgz
-curl -fsSL "https://github.com/anvai-labs/sentinelpass/releases/download/v${V}/sha256sums.txt"   # cross-check both sums
+curl -fsSL -o /tmp/sp.dmg      "https://github.com/anvai-labs/sentinelpass/releases/download/v${V}/sentinelpass-${V}-macos.dmg"
+shasum -a 256 /tmp/sp-macos.tgz /tmp/sp-linux.tgz /tmp/sp.dmg
+curl -fsSL "https://github.com/anvai-labs/sentinelpass/releases/download/v${V}/sha256sums.txt"   # cross-check all three sums
 ```
 
 then replace `v${V}` in both URLs (the tag path and the tarball names) and set
-the two `sha256` lines (macOS sum first). Nothing else changes — brew detects
-the version from the URLs. Keep the commands above: they double as the
-diff-shape check (they reproduce the bot's exact change). Asset names are
-arch-unnamed (`-macos.tar.gz` is arm64-only), so until upstream renames them
-per-arch the formula cannot cover more platforms than these two tarballs.
+the two `sha256` lines in the formula (macOS sum first) and the `sha256 arm:`
+line in the cask. Nothing else changes — brew detects the version from the
+URLs. Keep the commands above: they double as the diff-shape check (they
+reproduce the bot's exact change). Asset names are arch-unnamed
+(`-macos.tar.gz` and `-macos.dmg` are arm64-only), so until upstream renames
+them per-arch the formula and cask cannot cover more platforms than these.
 
 Upstream's own release.yml "Bump Homebrew formula" job is retired for this
 purpose: it pushed the bump directly to `main`, which checks-only branch
@@ -120,8 +140,11 @@ strings and `sha256` lines.
 CI runs on every push to `main` (and every PR): syntax + release-contract
 checks, then `brew audit` on every formula followed by a real
 `brew install` and `brew test` of each, against the checked-out tap on a Linux
-runner. The required `CI Success` status check on `main` blocks merges when it
-goes red.
+runner. Casks get the same treatment on a macOS runner: `brew audit --cask`
+plus a real `brew install --cask` and an install smoke (bundle identity,
+embedded sidecars, quarantine, Gatekeeper status) — no `brew test`, which
+does not exist for casks. The required `CI Success` status check on `main`
+blocks merges when any of those jobs go red.
 
 ## Adding a new product
 
@@ -135,6 +158,9 @@ goes red.
    `update-sandhi.yml`) or document the manual runbook above.
 4. Update the formula table and the audit table in this README in the same
    change.
+5. If the product also ships a macOS `.app`, add `Casks/<name>.rb` (app
+   stanza, arm/intel sha256, livecheck, vault-safe uninstall/zap, caveats)
+   and extend the CI `casks` job + the bump bot's `add-paths` with it.
 
 CI audits, installs and tests the formula on the push.
 
