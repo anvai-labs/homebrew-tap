@@ -5,8 +5,7 @@ cask "sentinelpass" do
   # release's sha256sums.txt on every bump.
   sha256 arm: "b487df257a56b1881b10df2dde4c2fbb5aac8c1b7f359b00769754f798452a5a"
 
-  url "https://github.com/anvai-labs/sentinelpass/releases/download/v#{version}/sentinelpass-#{version}-macos.dmg",
-      verified: "github.com/anvai-labs/sentinelpass/"
+  url "https://github.com/anvai-labs/sentinelpass/releases/download/v#{version}/sentinelpass-#{version}-macos.dmg"
   name "SentinelPass"
   desc "Local-first password manager with browser autofill (desktop app)"
   homepage "https://github.com/anvai-labs/sentinelpass"

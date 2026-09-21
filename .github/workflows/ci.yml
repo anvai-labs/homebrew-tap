@@ -119,8 +119,11 @@ jobs:
           bundle_ver="$(plutil -extract CFBundleShortVersionString raw "$APP/Contents/Info.plist")"
           cask_ver="$(brew info --cask anvai-labs/tap/sentinelpass --json=v2 | jq -r '.casks[0].version')"
           test "$bundle_ver" = "$cask_ver"
-          # Main executable is an arm64 Mach-O.
-          lipo -archs "$APP/Contents/MacOS/SentinelPass" | grep -q arm64
+          # Main executable (CFBundleExecutable — Tauri names it after the
+          # cargo bin, sentinelpass-ui) is an arm64 Mach-O.
+          main_bin="sentinelpass-ui"
+          test "$(plutil -extract CFBundleExecutable raw "$APP/Contents/Info.plist")" = "$main_bin"
+          lipo -archs "$APP/Contents/MacOS/$main_bin" | grep -q arm64
           # Self-containment: daemon + browser host sidecars survived the
           # install. Presence only — never execute them (the daemon accepts
           # no probe args and takes the per-vault lock).
