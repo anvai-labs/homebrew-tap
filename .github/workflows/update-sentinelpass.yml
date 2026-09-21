@@ -21,59 +21,112 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Compute SHA-256 for each platform archive
+      - name: Compute SHA-256 for each release asset
         id: shas
         env:
           TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
           ver="${TAG#v}"
+          base="https://github.com/anvai-labs/sentinelpass/releases/download/${TAG}"
+          # Download into RUNNER_TEMP, never the repo root: the checked-out
+          # tree must stay clean so create-pull-request only ever sees the
+          # formula/cask edits.
+          dir="${RUNNER_TEMP}/sentinelpass-assets"
+          mkdir -p "$dir"
           mac="sentinelpass-${ver}-macos.tar.gz"
           linux="sentinelpass-${ver}-linux.tar.gz"
-          base="https://github.com/anvai-labs/sentinelpass/releases/download/${TAG}"
-          curl -fsSL "$base/$mac"  -o mac.tgz
-          curl -fsSL "$base/$linux" -o linux.tgz
+          dmg="sentinelpass-${ver}-macos.dmg"
+          curl -fsSL "$base/$mac"   -o "$dir/mac.tgz"
+          curl -fsSL "$base/$linux" -o "$dir/linux.tgz"
           {
             echo "version=$ver"
-            echo "mac_sha=$(sha256sum mac.tgz | cut -d' ' -f1)"
-            echo "linux_sha=$(sha256sum linux.tgz | cut -d' ' -f1)"
+            echo "mac_sha=$(sha256sum "$dir/mac.tgz" | cut -d' ' -f1)"
+            echo "linux_sha=$(sha256sum "$dir/linux.tgz" | cut -d' ' -f1)"
           } >> "$GITHUB_OUTPUT"
+          # Cask artifact: skip gracefully on formula-only releases, but when
+          # present, cross-check against the release's own sha256sums.txt so
+          # an upstream rename or regeneration fails loudly here instead of
+          # at user install time.
+          if curl -fsSL "$base/$dmg" -o "$dir/app.dmg"; then
+            dmg_sha="$(sha256sum "$dir/app.dmg" | cut -d' ' -f1)"
+            sums="$(curl -fsSL "$base/sha256sums.txt")"
+            echo "$sums" | grep -q "$dmg_sha" \
+              || { echo "::error::DMG sha256 not present in release sha256sums.txt — asset renamed or regenerated?"; exit 1; }
+            {
+              echo "dmg_sha=$dmg_sha"
+              echo "has_dmg=true"
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::no ${dmg} on ${TAG}; the cask will be left untouched"
+            echo "has_dmg=false" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Rewrite the formula version and checksums
+      - name: Rewrite the formula and cask versions and checksums
         id: rewrite
         env:
           TAG: ${{ inputs.tag }}
           MAC_SHA: ${{ steps.shas.outputs.mac_sha }}
           LINUX_SHA: ${{ steps.shas.outputs.linux_sha }}
+          DMG_SHA: ${{ steps.shas.outputs.dmg_sha }}
+          HAS_DMG: ${{ steps.shas.outputs.has_dmg }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
           import os, pathlib, re
+
           tag = os.environ["TAG"]
           ver = tag[1:] if tag.startswith("v") else tag
-          p = pathlib.Path("Formula/sentinelpass.rb")
-          s = p.read_text()
-          m = re.search(r"releases/download/(v[^/]+)/", s)
-          if not m:
-              raise SystemExit("cannot find the current version in Formula/sentinelpass.rb")
-          old_tag = m.group(1)
-          old_ver = old_tag[1:] if old_tag.startswith("v") else old_tag
-          if old_tag == tag:
-              raise SystemExit(0)
-          # URL path carries the v-prefixed tag; tarball names carry the bare version.
-          s = s.replace(f"/{old_tag}/", f"/{tag}/")
-          s = re.sub(rf"(sentinelpass-){re.escape(old_ver)}", rf"\g<1>{ver}", s)
-          shas = iter([os.environ["MAC_SHA"], os.environ["LINUX_SHA"]])
-          s, n = re.subn(r'(sha256 ")[0-9a-f]{64}(")', lambda mm: mm.group(1) + next(shas) + mm.group(2), s)
-          if n != 2:
-              raise SystemExit(f"expected 2 sha256 lines, replaced {n}")
-          p.write_text(s)
+
+          def bump_file(path, shas, expected_n):
+              """Rewrite tag path, version numbers and checksums.
+
+              Returns whether the file changed. The sha256 regex matches both
+              the formula's plain `sha256 "..."` (formula: mac+linux, n=2) and
+              the cask's `sha256 arm: "..."` (cask: single line, n=1).
+              """
+              s = path.read_text()
+              m = re.search(r"releases/download/(v[^/]+)/", s)
+              if not m:
+                  raise SystemExit(f"cannot find the current version in {path}")
+              old_tag = m.group(1)
+              old_ver = old_tag[1:] if old_tag.startswith("v") else old_tag
+              if old_tag == tag:
+                  return False
+              # URL paths carry the v-prefixed tag; asset names the bare version.
+              s = s.replace(f"/{old_tag}/", f"/{tag}/")
+              s = re.sub(rf"(sentinelpass-){re.escape(old_ver)}", rf"\g<1>{ver}", s)
+              it = iter(shas)
+              s, n = re.subn(
+                  r'(sha256(?:\s+arm:)?\s*")[0-9a-f]{64}(")',
+                  lambda mm: mm.group(1) + next(it) + mm.group(2),
+                  s,
+              )
+              if n != expected_n:
+                  raise SystemExit(f"{path}: expected {expected_n} sha256 lines, replaced {n}")
+              path.write_text(s)
+              return True
+
+          changed_formula = bump_file(
+              pathlib.Path("Formula/sentinelpass.rb"),
+              [os.environ["MAC_SHA"], os.environ["LINUX_SHA"]],
+              expected_n=2,
+          )
+          changed_cask = False
+          if os.environ["HAS_DMG"] == "true":
+              changed_cask = bump_file(
+                  pathlib.Path("Casks/sentinelpass.rb"),
+                  [os.environ["DMG_SHA"]],
+                  expected_n=1,
+              )
+          if not (changed_formula or changed_cask):
+              print(f"formula and cask already at {tag}")
           PY
-          # Only the formula counts as a change; the re-downloaded root
-          # tarballs churn on every run (gzip mtime) and must not trigger a PR.
-          if git diff --quiet -- Formula/sentinelpass.rb; then
+          # Either file changing (a partial previous run converges here) is
+          # enough to open the PR; downloaded assets live in RUNNER_TEMP and
+          # never leak into the diff.
+          if git diff --quiet -- Formula/sentinelpass.rb Casks/sentinelpass.rb; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "formula already at ${TAG}"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
@@ -86,6 +139,7 @@ jobs:
           delete-branch: true
           commit-message: "sentinelpass ${{ steps.shas.outputs.version }}"
           title: "sentinelpass ${{ steps.shas.outputs.version }}"
-          body: "Automated bump: release assets downloaded, SHA-256s recomputed from the actual bytes."
+          body: "Automated bump: release assets downloaded to RUNNER_TEMP, SHA-256s recomputed from the actual bytes and cross-checked against the release sha256sums.txt."
           add-paths: |
             Formula/sentinelpass.rb
+            Casks/sentinelpass.rb
