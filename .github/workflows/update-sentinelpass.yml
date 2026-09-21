@@ -78,13 +78,10 @@ jobs:
           tag = os.environ["TAG"]
           ver = tag[1:] if tag.startswith("v") else tag
 
-          def bump_file(path, shas, expected_n):
-              """Rewrite tag path, version numbers and checksums.
-
-              Returns whether the file changed. The sha256 regex matches both
-              the formula's plain `sha256 "..."` (formula: mac+linux, n=2) and
-              the cask's `sha256 arm: "..."` (cask: single line, n=1).
-              """
+          def bump_formula(path, shas):
+              """Formula: literal versions (tap convention — brew detects the
+              version from the URL). Rewrite URL tag path, asset filenames and
+              the two plain sha256 lines (mac first, linux second, n=2)."""
               s = path.read_text()
               m = re.search(r"releases/download/(v[^/]+)/", s)
               if not m:
@@ -98,26 +95,47 @@ jobs:
               s = re.sub(rf"(sentinelpass-){re.escape(old_ver)}", rf"\g<1>{ver}", s)
               it = iter(shas)
               s, n = re.subn(
-                  r'(sha256(?:\s+arm:)?\s*")[0-9a-f]{64}(")',
+                  r'(sha256\s*")[0-9a-f]{64}(")',
                   lambda mm: mm.group(1) + next(it) + mm.group(2),
                   s,
               )
-              if n != expected_n:
-                  raise SystemExit(f"{path}: expected {expected_n} sha256 lines, replaced {n}")
+              if n != 2:
+                  raise SystemExit(f"{path}: expected 2 sha256 lines, replaced {n}")
               path.write_text(s)
               return True
 
-          changed_formula = bump_file(
+          def bump_cask(path, sha):
+              """Cask: URL is fully version-templated (cask audit requires a
+              versioned URL and rejects a literal one as unversioned), so the
+              version stanza is the only version string in the file. Rewrite
+              stanza + the single `sha256 arm:` line; nothing else moves."""
+              s = path.read_text()
+              m = re.search(r'^(\s*version ")([^"]+)(")', s, re.MULTILINE)
+              if not m:
+                  raise SystemExit(f"cannot find the version stanza in {path}")
+              old_ver = m.group(2)
+              if old_ver == ver:
+                  return False
+              s = s[:m.start()] + m.group(1) + ver + m.group(3) + s[m.end():]
+              s, n = re.subn(
+                  r'(sha256\s+arm:\s*")[0-9a-f]{64}(")',
+                  lambda mm: mm.group(1) + sha + mm.group(2),
+                  s,
+              )
+              if n != 1:
+                  raise SystemExit(f"{path}: expected 1 sha256 line, replaced {n}")
+              path.write_text(s)
+              return True
+
+          changed_formula = bump_formula(
               pathlib.Path("Formula/sentinelpass.rb"),
               [os.environ["MAC_SHA"], os.environ["LINUX_SHA"]],
-              expected_n=2,
           )
           changed_cask = False
           if os.environ["HAS_DMG"] == "true":
-              changed_cask = bump_file(
+              changed_cask = bump_cask(
                   pathlib.Path("Casks/sentinelpass.rb"),
-                  [os.environ["DMG_SHA"]],
-                  expected_n=1,
+                  os.environ["DMG_SHA"],
               )
           if not (changed_formula or changed_cask):
               print(f"formula and cask already at {tag}")

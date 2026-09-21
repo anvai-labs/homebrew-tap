@@ -1,4 +1,7 @@
 cask "sentinelpass" do
+  # The version stanza is the single source of truth for bumps: the URL is
+  # fully version-templated (cask audit requires a versioned URL), so the
+  # bump bot rewrites only this stanza and the arm checksum below.
   version "0.13.0"
   # Arm64-only upstream; the DMG asset name is arch-generic. The sum is
   # recomputed from the actual downloaded DMG and cross-checked against the
