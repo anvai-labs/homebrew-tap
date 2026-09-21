@@ -81,9 +81,11 @@ jobs:
           def bump_file(path, shas, expected_n):
               """Rewrite tag path, version numbers and checksums.
 
-              Returns whether the file changed. The sha256 regex matches both
-              the formula's plain `sha256 "..."` (formula: mac+linux, n=2) and
-              the cask's `sha256 arm: "..."` (cask: single line, n=1).
+              Returns whether the file changed. Both files carry literal
+              versions (tap convention): the URL tag path, the asset filename
+              and — cask only — the `version "..."` stanza move together. The
+              sha256 regex matches both the formula's plain `sha256 "..."`
+              (mac+linux, n=2) and the cask's `sha256 arm: "..."` (n=1).
               """
               s = path.read_text()
               m = re.search(r"releases/download/(v[^/]+)/", s)
@@ -96,6 +98,10 @@ jobs:
               # URL paths carry the v-prefixed tag; asset names the bare version.
               s = s.replace(f"/{old_tag}/", f"/{tag}/")
               s = re.sub(rf"(sentinelpass-){re.escape(old_ver)}", rf"\g<1>{ver}", s)
+              s, vn = re.subn(rf'(^\s*version "){re.escape(old_ver)}(")',
+                              rf"\g<1>{ver}\g<2>", s, flags=re.MULTILINE)
+              if vn > 1:
+                  raise SystemExit(f"{path}: expected at most 1 version stanza, replaced {vn}")
               it = iter(shas)
               s, n = re.subn(
                   r'(sha256(?:\s+arm:)?\s*")[0-9a-f]{64}(")',
