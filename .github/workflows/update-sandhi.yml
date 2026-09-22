@@ -27,12 +27,14 @@ jobs:
           TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
+          [[ "$TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
           ver="${TAG#v}"
           mac="sandhi-proxy-${TAG}-aarch64-apple-darwin.tar.gz"
           linux="sandhi-proxy-${TAG}-x86_64-unknown-linux-gnu.tar.gz"
           base="https://github.com/anvai-labs/sandhi/releases/download/${TAG}"
           curl -fsSL "$base/$mac"  -o mac.tgz
           curl -fsSL "$base/$linux" -o linux.tgz
+          python3 scripts/check-sandhi-archive.py linux.tgz "$TAG"
           {
             echo "version=$ver"
             echo "mac_sha=$(sha256sum mac.tgz | cut -d' ' -f1)"
@@ -64,6 +66,15 @@ jobs:
           s, n = re.subn(r'(sha256 ")[0-9a-f]{64}(")', lambda mm: mm.group(1) + next(shas) + mm.group(2), s)
           if n != 2:
               raise SystemExit(f"expected 2 sha256 lines, replaced {n}")
+          old_test = ("    # sandhi-proxy is a server binary without a --help surface; assert the\n"
+                      "    # installed artifact directly, and exercise the operator CLI's version.\n"
+                      '    assert_predicate bin/"sandhi-proxy", :executable?\n'
+                      '    assert_match version.to_s, shell_output("#{bin}/sandhi --version")')
+          new_test = ('    assert_equal "sandhi #{version}\\n", shell_output("#{bin}/sandhi --version")\n'
+                      '    assert_equal "sandhi-proxy #{version}\\n", shell_output("#{bin}/sandhi-proxy --version")')
+          if old_test not in s and new_test not in s:
+              raise SystemExit("unexpected Sandhi formula test block; review required")
+          s = s.replace(old_test, new_test)
           p.write_text(s)
           PY
           # Only the formula counts as a change; the re-downloaded root
@@ -83,6 +94,6 @@ jobs:
           delete-branch: true
           commit-message: "sandhi ${{ steps.shas.outputs.version }}"
           title: "sandhi ${{ steps.shas.outputs.version }}"
-          body: "Automated bump: release assets downloaded, SHA-256s recomputed from the actual bytes."
+          body: "Automated bump: release assets downloaded, SHA-256s recomputed from actual bytes; both Linux binary versions verified against the tag; installed formula tests check both binaries."
           add-paths: |
             Formula/sandhi.rb
