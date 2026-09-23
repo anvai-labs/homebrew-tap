@@ -160,7 +160,7 @@ class Agentbrowser < Formula
     # agentbrowser-mcp is a stdio MCP server: given an open stdin it starts
     # serving and never exits, so probe it with stdin closed.
     system "/bin/sh", "-c", %Q("#{bin}/agentbrowser-mcp" --help </dev/null)
-    system "#{bin}/agentbrowser", "--help"
+    system bin/"agentbrowser", "--help"
     assert_equal version.to_s, shell_output("#{bin}/agentbrowser --version").strip
     assert_match "--cookies-file", shell_output("#{bin}/agentbrowser session create --help")
     assert_match "--output", shell_output("#{bin}/agentbrowser session cookies --help")
