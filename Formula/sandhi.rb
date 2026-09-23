@@ -12,11 +12,11 @@ class Sandhi < Formula
   # build from source. Versions are literal so brew detects them from the URL;
   # the Update Sandhi Formula workflow rewrites them plus the sha256 lines.
   if OS.mac? && Hardware::CPU.arm64?
-    url "https://github.com/anvai-labs/sandhi/releases/download/v0.7.0/sandhi-proxy-v0.7.0-aarch64-apple-darwin.tar.gz"
-    sha256 "b2924cca31b295c46b5ca6df7caabc51bd3051608096dbecccc35e476c3a7de0"
+    url "https://github.com/anvai-labs/sandhi/releases/download/v0.8.0/sandhi-proxy-v0.8.0-aarch64-apple-darwin.tar.gz"
+    sha256 "e12a3eb00301c6047fdea29c4de0c1b8c0223f2b3ec35a0e64c1423c78e80aa2"
   elsif OS.linux? && Hardware::CPU.intel?
-    url "https://github.com/anvai-labs/sandhi/releases/download/v0.7.0/sandhi-proxy-v0.7.0-x86_64-unknown-linux-gnu.tar.gz"
-    sha256 "e53f458a5e8aac48b230d87e13f189ba8df21b791b111a4463e198cedf4f6125"
+    url "https://github.com/anvai-labs/sandhi/releases/download/v0.8.0/sandhi-proxy-v0.8.0-x86_64-unknown-linux-gnu.tar.gz"
+    sha256 "8414d3be2ab54870c64ba553629e7cc451c16160b39de9cc861f322185cb7483"
   end
 
   livecheck do
@@ -32,18 +32,26 @@ class Sandhi < Formula
   service do
     run [opt_bin/"sandhi-proxy"]
     # `environment_variables`, not `environment` — Homebrew 6 renamed the DSL.
-    environment_variables "SANDHI_BIND"  => "127.0.0.1:8787",
-                          "SANDHI_STORE" => var/"sandhi/usage.db"
+    environment_variables "SANDHI_BIND"        => "127.0.0.1:8787",
+                          "SANDHI_STORE"       => var/"sandhi/usage.db",
+                          "SANDHI_OIDC_CONFIG" => etc/"sandhi/oidc.json"
 
     keep_alive true
     log_path var/"log/sandhi-proxy.log"
     error_log_path var/"log/sandhi-proxy.err.log"
   end
 
+  def caveats
+    <<~EOS
+      Sandhi defaults to OIDC SSO and requires identity configuration before startup.
+      Before starting the service, create a private #{etc}/sandhi/oidc.json using:
+        https://github.com/anvai-labs/sandhi/blob/main/docs/operator/oidc-sso.md
+      Provider credentials and existing usage databases are not migrated automatically.
+    EOS
+  end
+
   test do
-    # sandhi-proxy is a server binary without a --help surface; assert the
-    # installed artifact directly, and exercise the operator CLI's version.
-    assert_predicate bin/"sandhi-proxy", :executable?
-    assert_match version.to_s, shell_output("#{bin}/sandhi --version")
+    assert_equal "sandhi #{version}\n", shell_output("#{bin}/sandhi --version")
+    assert_equal "sandhi-proxy #{version}\n", shell_output("#{bin}/sandhi-proxy --version")
   end
 end
