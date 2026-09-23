@@ -45,7 +45,7 @@ cask never touches the vault in `~/Library/Application Support/PasswordManager`.
 
 ### Running sandhi as a service
 
-Sandhi 0.9.0 defaults to OIDC SSO. Before starting the service, create a private
+Sandhi 0.9.1 defaults to OIDC SSO. Before starting the service, create a private
 `$(brew --prefix)/etc/sandhi/oidc.json` using the
 [OIDC setup guide](https://github.com/anvai-labs/sandhi/blob/main/docs/operator/oidc-sso.md).
 Missing configuration or failed identity-provider discovery prevents startup.
