@@ -2,11 +2,11 @@ cask "sentinelpass" do
   # The version stanza is the single source of truth for bumps: the URL is
   # fully version-templated (cask audit requires a versioned URL), so the
   # bump bot rewrites only this stanza and the arm checksum below.
-  version "0.13.2"
+  version "0.13.3"
   # Arm64-only upstream; the DMG asset name is arch-generic. The sum is
   # recomputed from the actual downloaded DMG and cross-checked against the
   # release's sha256sums.txt on every bump.
-  sha256 arm: "fc09e2199d9884bf39197517025cc50d0bbff591e9dccf052345e9b3c029d88d"
+  sha256 arm: "6d5ea13526264770e3c0338f9ce634bef671a80838e33b2b4bb38ff6a7090d96"
 
   url "https://github.com/anvai-labs/sentinelpass/releases/download/v#{version}/sentinelpass-#{version}-macos.dmg"
   name "SentinelPass"
@@ -42,9 +42,8 @@ cask "sentinelpass" do
   ]
 
   caveats <<~EOS
-    This cask installs the SentinelPass desktop app only. The command-line
-    tools (sentinelpass, sentinelpass-host, sentinelpass-ui) come from the
-    formula: brew install anvai-labs/tap/sentinelpass
+    The desktop app bundles its daemon and browser native-messaging host.
+    No formula installation is needed for desktop or browser use.
 
     The app manages its own daemon and the vault at
     ~/Library/Application Support/PasswordManager. Uninstall — even
