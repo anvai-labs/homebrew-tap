@@ -12,11 +12,11 @@ class Sandhi < Formula
   # build from source. Versions are literal so brew detects them from the URL;
   # the Update Sandhi Formula workflow rewrites them plus the sha256 lines.
   if OS.mac? && Hardware::CPU.arm64?
-    url "https://github.com/anvai-labs/sandhi/releases/download/v0.9.1/sandhi-proxy-v0.9.1-aarch64-apple-darwin.tar.gz"
-    sha256 "2b4da921cf89a0f5bc2b6e7beed7f0d5d0fbcf5fa52f9e272b09ec4f506909b1"
+    url "https://github.com/anvai-labs/sandhi/releases/download/v0.10.0/sandhi-proxy-v0.10.0-aarch64-apple-darwin.tar.gz"
+    sha256 "7540da05eb3a6772c6170fbf18b54ac26f184bbbd8f2e4a6e4dc132202e63ba4"
   elsif OS.linux? && Hardware::CPU.intel?
-    url "https://github.com/anvai-labs/sandhi/releases/download/v0.9.1/sandhi-proxy-v0.9.1-x86_64-unknown-linux-gnu.tar.gz"
-    sha256 "c07f02c15a0dc719a7289cd64b771abf811943a68512a1cdd2f1e5b4de787068"
+    url "https://github.com/anvai-labs/sandhi/releases/download/v0.10.0/sandhi-proxy-v0.10.0-x86_64-unknown-linux-gnu.tar.gz"
+    sha256 "540ae5db14ccc9200643c8c24f80c60d894c42286e037ea5cf89de7f41871294"
   end
 
   livecheck do
