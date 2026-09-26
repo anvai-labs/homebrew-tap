@@ -6,8 +6,8 @@ class Victor < Formula
 
   desc "Enterprise-Ready AI Coding Assistant - Any model, any provider"
   homepage "https://github.com/anvai-labs/victor"
-  url "https://files.pythonhosted.org/packages/2e/a7/63cd93558b8bb18c0baed77954010e80cfe4864e4c674c2a758b6faf36ab/victor_ai-0.9.5.tar.gz"
-  sha256 "9351aaae45f176ccc5cabf936f70280b3539467ab6a29b0c1a7145201944b9de"
+  url "https://files.pythonhosted.org/packages/e9/d2/514194b60f95bc9e3fb3bc497b324ef4249330167eed4dbc32d7643a1c16/victor_ai-0.10.0.tar.gz"
+  sha256 "0f93b4945d2a27c91402f658cd2dc693e084188749b565b3681c5d4fb99b4a6c"
   license "Apache-2.0"
 
   depends_on "libyaml"
