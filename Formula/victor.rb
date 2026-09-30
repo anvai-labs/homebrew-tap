@@ -446,16 +446,20 @@ class Victor < Formula
   end
 
   resource "sandhi-gateway" do
+    # 0.7.0 per victor 0.10.0's pyproject pin. 0.1.6 predates the inferflux
+    # provider entry in victor's openai_compat catalog, and one unknown
+    # catalog provider is fatal at victor startup (every command failed with
+    # "Sandhi has no typed provider descriptor for 'inferflux'").
     on_macos do
       on_arm do
-        url "https://files.pythonhosted.org/packages/ad/88/29264ba615dc3fcc54284ad4c212f73a948d9a13f1cd1f8bb777fef63594/sandhi_gateway-0.1.6-cp311-abi3-macosx_11_0_arm64.whl"
-        sha256 "7618bd4acdaabc7b1edfc1b515cff250101eb4420fc236f16c08f5d13dec50af"
+        url "https://files.pythonhosted.org/packages/f8/06/3f0f00043b52151da21811155f84321d7a0e10a1444c51a4fd04d853ca76/sandhi_gateway-0.7.0-cp311-abi3-macosx_11_0_arm64.whl"
+        sha256 "fa59450b236dc1a663b14626f8c47a6e0dd909f3d1f9c376819fe0b3c53cf584"
       end
     end
     on_linux do
       on_intel do
-        url "https://files.pythonhosted.org/packages/15/e5/a198edfea5f147b85a8d4c6da369392d51da9f9068975c9f0c268410a89b/sandhi_gateway-0.1.6-cp311-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
-        sha256 "53d3dcf30d14b77515414dff41f487e82b7376ad9b6e0e6ab18b8303172d9239"
+        url "https://files.pythonhosted.org/packages/f4/89/5ea76d27105be33499bea5cfe57d64502dc18ef778eaf29ae30ec320dc4d/sandhi_gateway-0.7.0-cp311-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
+        sha256 "c8d773e3f8d3ac0c191d5a71b97fe62a182a97bab8b9e352a100c1b7e21db111"
       end
     end
   end
