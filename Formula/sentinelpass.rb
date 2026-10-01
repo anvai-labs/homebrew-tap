@@ -10,11 +10,11 @@ class Sentinelpass < Formula
   # the tarballs are arch-unnamed (-macos is arm64-only). Versions are literal
   # so brew detects them from the URL.
   if OS.mac? && Hardware::CPU.arm64?
-    url "https://github.com/anvai-labs/sentinelpass/releases/download/v0.14.0/sentinelpass-0.14.0-macos.tar.gz"
-    sha256 "5a872a88436a477d6368230e78b55203d1c6b82fe2a475dbf23a4a5b35a80ca5"
+    url "https://github.com/anvai-labs/sentinelpass/releases/download/v0.14.1/sentinelpass-0.14.1-macos.tar.gz"
+    sha256 "093e86014c62fd826351323bd2f47d971615d9e6cd464a7e117c4193caa9b923"
   elsif OS.linux? && Hardware::CPU.intel?
-    url "https://github.com/anvai-labs/sentinelpass/releases/download/v0.14.0/sentinelpass-0.14.0-linux.tar.gz"
-    sha256 "2c52b9e33070d2daf1f35161e818940d3ea7ca7c31e0559bfc884d03a4bd3c43"
+    url "https://github.com/anvai-labs/sentinelpass/releases/download/v0.14.1/sentinelpass-0.14.1-linux.tar.gz"
+    sha256 "1baca15bf5adb7257f4f0efeda1606e8d7659ba0a2b9565864bca490f45a5382"
   end
 
   livecheck do
