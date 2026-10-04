@@ -9,7 +9,7 @@ binaries without --version fail.
 """
 import argparse
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import subprocess
 import tarfile
@@ -26,6 +26,12 @@ def verify(archive, tag):
             names = {m.name for m in members}
             if not {"sandhi", "sandhi-proxy"} <= names:
                 raise ValueError("archive must contain the two Sandhi binaries at its root")
+            # Path traversal / absolute entries are refused outright — a
+            # tamper signal regardless of extraction.
+            for member in members:
+                parts = PurePosixPath(member.name).parts
+                if PurePosixPath(member.name).is_absolute() or ".." in parts:
+                    raise ValueError("archive contains unsafe path entry")
             # Only the two known binaries are ever extracted; other archive
             # members (release assets, docs) are admitted but never read.
             binaries = [m for m in members if m.name in ("sandhi", "sandhi-proxy")]

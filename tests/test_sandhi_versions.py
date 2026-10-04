@@ -43,6 +43,23 @@ class SandhiVersions(unittest.TestCase):
                 archive = self.archive(Path(root), **kwargs)
                 with self.subTest(kwargs=kwargs), self.assertRaises(ValueError): checker.verify(archive, "v0.7.1")
 
+    def test_benign_release_assets_are_admitted_but_never_extracted(self):
+        # Since sandhi v0.11.0 the archives ship model assets/docs alongside
+        # the binaries. Normal-path extras must VERIFY (never extracted);
+        # only traversal-style extras remain fatal (previous test).
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root)
+            archive = self.archive(path)
+            out = path / "with-assets.tgz"
+            with tarfile.open(archive, "r:gz") as source, tarfile.open(out, "w:gz") as dest:
+                for member in source.getmembers():
+                    if member.isfile():
+                        dest.addfile(member, source.extractfile(member))
+                asset = tarfile.TarInfo("crates/sandhi-proxy/assets/model.bin")
+                asset.size = 4
+                dest.addfile(asset, io.BytesIO(b"data"))
+            checker.verify(out, "v0.7.1")
+
     def test_bump_wires_binary_check_and_both_formula_version_assertions(self):
         workflow = (ROOT / ".github/workflows/update-sandhi.yml").read_text()
         self.assertIn('python3 scripts/check-sandhi-archive.py linux.tgz "$TAG"', workflow)
