@@ -2,8 +2,10 @@
 """Verify both native Linux binary versions before a Sandhi formula bump.
 
 Use only with a downloaded, trusted Sandhi GitHub release archive. The archive is
-never extracted wholesale; only two regular files are admitted. Child environment
-and execution time are bounded. Historical proxy binaries without --version fail.
+never extracted wholesale; only the two known Sandhi binaries are extracted
+(release assets shipped alongside them since v0.11.0 are admitted but never
+read). Child environment and execution time are bounded. Historical proxy
+binaries without --version fail.
 """
 import argparse
 import os
@@ -21,11 +23,15 @@ def verify(archive, tag):
         directory = Path(temporary)
         with tarfile.open(archive, "r:gz") as source:
             members = source.getmembers()
-            if {m.name for m in members} != {"sandhi", "sandhi-proxy"} or len(members) != 2:
-                raise ValueError("archive must contain exactly the two Sandhi binaries")
-            if any(not m.isfile() or not 0 < m.size <= 512 * 1024 * 1024 for m in members):
+            names = {m.name for m in members}
+            if not {"sandhi", "sandhi-proxy"} <= names:
+                raise ValueError("archive must contain the two Sandhi binaries at its root")
+            # Only the two known binaries are ever extracted; other archive
+            # members (release assets, docs) are admitted but never read.
+            binaries = [m for m in members if m.name in ("sandhi", "sandhi-proxy")]
+            if any(not m.isfile() or not 0 < m.size <= 512 * 1024 * 1024 for m in binaries):
                 raise ValueError("archive contains unsafe binary entries")
-            for member in members:
+            for member in binaries:
                 with source.extractfile(member) as stream, (directory / member.name).open("wb") as output:
                     import shutil
                     shutil.copyfileobj(stream, output)
