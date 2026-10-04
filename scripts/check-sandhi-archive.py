@@ -2,8 +2,10 @@
 """Verify both native Linux binary versions before a Sandhi formula bump.
 
 Use only with a downloaded, trusted Sandhi GitHub release archive. The archive is
-never extracted wholesale; only two regular files are admitted. Child environment
-and execution time are bounded. Historical proxy binaries without --version fail.
+never extracted wholesale; only the two known Sandhi binaries are extracted
+(release assets shipped alongside them since v0.11.0 are admitted but never
+read). Child environment and execution time are bounded. Historical proxy
+binaries without --version fail.
 """
 import argparse
 import os
@@ -21,11 +23,27 @@ def verify(archive, tag):
         directory = Path(temporary)
         with tarfile.open(archive, "r:gz") as source:
             members = source.getmembers()
-            if {m.name for m in members} != {"sandhi", "sandhi-proxy"} or len(members) != 2:
-                raise ValueError("archive must contain exactly the two Sandhi binaries")
-            if any(not m.isfile() or not 0 < m.size <= 512 * 1024 * 1024 for m in members):
-                raise ValueError("archive contains unsafe binary entries")
+            names = {m.name for m in members}
+            if not {"sandhi", "sandhi-proxy"} <= names:
+                raise ValueError("archive must contain the two Sandhi binaries at its root")
+            # Path traversal / absolute entries are refused outright — a
+            # tamper signal regardless of extraction. Backslashes count as
+            # separators too (PurePosixPath alone would miss Windows-style
+            # traversal; inert today, but this check is the tamper signal).
             for member in members:
+                normalized = member.name.replace("\\", "/")
+                if normalized.startswith("/") or ".." in normalized.split("/"):
+                    raise ValueError("archive contains unsafe path entry")
+            # Only the two known binaries are ever extracted; other archive
+            # members (release assets, docs) are admitted but never read.
+            # Exactly one of each: duplicate tar names would silently pick
+            # a last-wins winner (review nit 1).
+            binaries = [m for m in members if m.name in ("sandhi", "sandhi-proxy")]
+            if len(binaries) != 2:
+                raise ValueError("archive must contain exactly one of each Sandhi binary")
+            if any(not m.isfile() or not 0 < m.size <= 512 * 1024 * 1024 for m in binaries):
+                raise ValueError("archive contains unsafe binary entries")
+            for member in binaries:
                 with source.extractfile(member) as stream, (directory / member.name).open("wb") as output:
                     import shutil
                     shutil.copyfileobj(stream, output)
