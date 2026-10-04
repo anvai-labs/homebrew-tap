@@ -13,7 +13,7 @@ SPEC.loader.exec_module(checker)
 
 
 class SandhiVersions(unittest.TestCase):
-    def archive(self, root, version="0.7.1", proxy_version=None, extra=False, symlink=False):
+    def archive(self, root, version="0.7.1", proxy_version=None, extra=False, symlink=False, absolute=False, backslash=False):
         archive = root / "release.tgz"
         with tarfile.open(archive, "w:gz") as output:
             for name in ("sandhi", "sandhi-proxy"):
@@ -25,6 +25,8 @@ class SandhiVersions(unittest.TestCase):
                     entry.type = tarfile.SYMTYPE; entry.linkname = "/bin/sh"
                 output.addfile(entry, io.BytesIO(data))
             if extra: output.addfile(tarfile.TarInfo("../unexpected"), io.BytesIO())
+            if absolute: output.addfile(tarfile.TarInfo("/etc/passwd"), io.BytesIO())
+            if backslash: output.addfile(tarfile.TarInfo("assets\\\\..\\\\pwn"), io.BytesIO())
         return archive
 
     def test_tag_and_both_binaries_must_agree(self):
@@ -39,9 +41,30 @@ class SandhiVersions(unittest.TestCase):
 
     def test_archive_entries_are_restricted_before_execution(self):
         with tempfile.TemporaryDirectory() as root:
-            for kwargs in ({"extra":True}, {"symlink":True}):
+            for kwargs in ({"extra":True}, {"symlink":True}, {"absolute":True}, {"backslash":True}):
                 archive = self.archive(Path(root), **kwargs)
                 with self.subTest(kwargs=kwargs), self.assertRaises(ValueError): checker.verify(archive, "v0.7.1")
+
+    def test_benign_release_assets_are_admitted(self):
+        # Since sandhi v0.11.0 the archives ship model assets/docs alongside
+        # the binaries. Normal-path extras must VERIFY (never extracted);
+        # only traversal-style extras remain fatal (previous test).
+        with tempfile.TemporaryDirectory() as root:
+            path = Path(root)
+            archive = self.archive(path)
+            out = path / "with-assets.tgz"
+            with tarfile.open(archive, "r:gz") as source, tarfile.open(out, "w:gz") as dest:
+                for member in source.getmembers():
+                    if member.isfile():
+                        dest.addfile(member, source.extractfile(member))
+                    else:
+                        dest.addfile(member)
+                # v0.11.0-shaped: directory entries + nested files.
+                dest.addfile(tarfile.TarInfo("crates/sandhi-proxy/assets"))
+                asset = tarfile.TarInfo("crates/sandhi-proxy/assets/model.bin")
+                asset.size = 4
+                dest.addfile(asset, io.BytesIO(b"data"))
+            checker.verify(out, "v0.7.1")
 
     def test_bump_wires_binary_check_and_both_formula_version_assertions(self):
         workflow = (ROOT / ".github/workflows/update-sandhi.yml").read_text()
