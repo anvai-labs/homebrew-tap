@@ -29,6 +29,11 @@ URL is spelled out so the source is never ambiguous.)
 | `agentbrowser` | `agentbrowser`, `agentbrowser-server`, `agentbrowser-mcp` (agent-native browser service: CLI, service daemon, MCP server) | macOS arm64, macOS x64, Linux x86_64, Linux arm64 | [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) |
 | `inferflux` | `inferfluxd` (C++ LLM inference server) + `inferctl` (operator CLI) | macOS arm64, Linux x86_64, Linux arm64 | [anvai-labs/inferflux](https://github.com/anvai-labs/inferflux) |
 
+InferFlux's formula follows v0.5.0. The standard Linux release archives are
+CPU-only; keep a separately accepted CUDA/ROCm deployment on its source-qualified
+GPU build. Installing this formula does not upgrade or validate that serving
+runtime. See the [release acceptance and deployment limits](https://github.com/anvai-labs/inferflux/blob/develop/docs/releases/v0.5.0.md).
+
 ## Casks
 
 | Cask | Installs | Platforms | Upstream |
