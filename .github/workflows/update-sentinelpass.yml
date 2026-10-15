@@ -11,6 +11,11 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
+
+concurrency:
+  group: update-sentinelpass
+  cancel-in-progress: false
 
 jobs:
   bump:
@@ -37,30 +42,24 @@ jobs:
           mac="sentinelpass-${ver}-macos.tar.gz"
           linux="sentinelpass-${ver}-linux.tar.gz"
           dmg="sentinelpass-${ver}-macos.dmg"
-          curl -fsSL "$base/$mac"   -o "$dir/mac.tgz"
-          curl -fsSL "$base/$linux" -o "$dir/linux.tgz"
+          # Formula and desktop cask are one release unit. Missing assets or
+          # transient download failures must not publish a partial bump.
+          curl -fsSL "$base/$mac" -o "$dir/$mac"
+          curl -fsSL "$base/$linux" -o "$dir/$linux"
+          curl -fsSL "$base/$dmg" -o "$dir/$dmg"
+          curl -fsSL "$base/sha256sums.txt" -o "$dir/sha256sums.txt"
+          for asset in "$mac" "$linux" "$dmg"; do
+            actual="$(sha256sum "$dir/$asset" | cut -d' ' -f1)"
+            expected="$(awk -v asset="$asset" '$2 == asset || $2 == "*" asset {print $1}' "$dir/sha256sums.txt")"
+            test "$actual" = "$expected" || { echo "::error::Checksum mismatch for $asset"; exit 1; }
+          done
           {
             echo "version=$ver"
-            echo "mac_sha=$(sha256sum "$dir/mac.tgz" | cut -d' ' -f1)"
-            echo "linux_sha=$(sha256sum "$dir/linux.tgz" | cut -d' ' -f1)"
+            echo "mac_sha=$(sha256sum "$dir/$mac" | cut -d' ' -f1)"
+            echo "linux_sha=$(sha256sum "$dir/$linux" | cut -d' ' -f1)"
+            echo "dmg_sha=$(sha256sum "$dir/$dmg" | cut -d' ' -f1)"
+            echo "has_dmg=true"
           } >> "$GITHUB_OUTPUT"
-          # Cask artifact: skip gracefully on formula-only releases, but when
-          # present, cross-check against the release's own sha256sums.txt so
-          # an upstream rename or regeneration fails loudly here instead of
-          # at user install time.
-          if curl -fsSL "$base/$dmg" -o "$dir/app.dmg"; then
-            dmg_sha="$(sha256sum "$dir/app.dmg" | cut -d' ' -f1)"
-            sums="$(curl -fsSL "$base/sha256sums.txt")"
-            echo "$sums" | grep -q "$dmg_sha" \
-              || { echo "::error::DMG sha256 not present in release sha256sums.txt — asset renamed or regenerated?"; exit 1; }
-            {
-              echo "dmg_sha=$dmg_sha"
-              echo "has_dmg=true"
-            } >> "$GITHUB_OUTPUT"
-          else
-            echo "::warning::no ${dmg} on ${TAG}; the cask will be left untouched"
-            echo "has_dmg=false" >> "$GITHUB_OUTPUT"
-          fi
 
       - name: Rewrite the formula and cask versions and checksums
         id: rewrite
@@ -151,6 +150,7 @@ jobs:
 
       - name: Open or update the bump pull request
         if: steps.rewrite.outputs.changed == 'true'
+        id: pr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
           branch: automation/update-sentinelpass-formula
@@ -161,3 +161,10 @@ jobs:
           add-paths: |
             Formula/sentinelpass.rb
             Casks/sentinelpass.rb
+
+      - name: Run CI on the updated PR branch
+        if: steps.pr.outputs.pull-request-operation == 'created' || steps.pr.outputs.pull-request-operation == 'updated'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run ci.yml --ref automation/update-sentinelpass-formula

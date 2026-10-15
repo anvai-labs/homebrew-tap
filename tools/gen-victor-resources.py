@@ -79,6 +79,9 @@ def classify(filename: str) -> tuple[set[str], int] | None:
     if parsed is None:
         return None
     python, abis, plats = parsed
+    # Stable ABI wheels still require at least the CPython used to build them.
+    if "abi3" in abis and python.startswith("cp") and int(python[2:]) > 312:
+        return None
     for tag, rank in ABI_RANK:
         if tag in abis:
             abi_rank = rank
@@ -206,6 +209,7 @@ def main() -> int:
         with urllib.request.urlopen(url, timeout=60) as response:
             payload = json.load(response)
         files = payload["urls"]
+        files = [entry for entry in files if not entry.get("yanked")]
         picks: dict[str, dict[str, Any]] = {}
         for bucket in BUCKETS:
             chosen = best(files, bucket)
@@ -216,6 +220,9 @@ def main() -> int:
                 picks[bucket] = {"project": re.sub(r"[-_.]+", "-", name).lower(), "url": chosen["url"], "filename": chosen["filename"]}
         if not picks:
             print(f"ERROR: no usable wheel for {name} {version}", file=sys.stderr)
+            return 1
+        if "pure" not in picks and not {"mac_arm", "linux_x64"} <= picks.keys():
+            print(f"ERROR: {name} {version} lacks wheels for a supported Victor platform", file=sys.stderr)
             return 1
         missing = [b for b in BUCKETS if b not in picks]
         if missing:

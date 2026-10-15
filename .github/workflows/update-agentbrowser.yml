@@ -11,6 +11,11 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
+
+concurrency:
+  group: update-agentbrowser
+  cancel-in-progress: false
 
 jobs:
   bump:
@@ -100,6 +105,7 @@ jobs:
 
       - name: Open or update the bump pull request
         if: steps.rewrite.outputs.changed == 'true'
+        id: pr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
           branch: automation/update-agentbrowser-formula
@@ -109,3 +115,10 @@ jobs:
           body: "Automated bump: release assets downloaded, SHA-256s recomputed from the actual bytes."
           add-paths: |
             Formula/agentbrowser.rb
+
+      - name: Run CI on the updated PR branch
+        if: steps.pr.outputs.pull-request-operation == 'created' || steps.pr.outputs.pull-request-operation == 'updated'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run ci.yml --ref automation/update-agentbrowser-formula
