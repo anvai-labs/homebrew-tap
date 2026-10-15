@@ -14,6 +14,8 @@ brew install --cask anvai-labs/tap/sentinelpass   # desktop app — see Casks be
 brew install anvai-labs/tap/victor
 brew install anvai-labs/tap/agentbrowser
 brew install anvai-labs/tap/inferflux
+brew install anvai-labs/tap/dq-kernel
+brew install anvai-labs/tap/proximadb       # Linux x86_64 only
 ```
 
 (`brew tap anvai-labs/tap` resolves to this repository automatically; the full
@@ -28,11 +30,42 @@ URL is spelled out so the source is never ambiguous.)
 | `victor` | `victor` (AI coding assistant; PyPI virtualenv) | macOS + Linux | [anvai-labs/victor](https://github.com/anvai-labs/victor) |
 | `agentbrowser` | `agentbrowser`, `agentbrowser-server`, `agentbrowser-mcp` (agent-native browser service: CLI, service daemon, MCP server) | macOS arm64, macOS x64, Linux x86_64, Linux arm64 | [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) |
 | `inferflux` | `inferfluxd` (C++ LLM inference server) + `inferctl` (operator CLI) | macOS arm64, Linux x86_64, Linux arm64 | [anvai-labs/inferflux](https://github.com/anvai-labs/inferflux) |
-
+| `dq-kernel` | `dq-kernel` + `dq-validate`, with pinned Spark/PyDeequ dependencies | macOS 14+ arm64, Linux x86_64 | [anvai-labs/dq-kernel](https://github.com/anvai-labs/dq-kernel) |
+| `proximadb` | `proximadb-server`, `proximadb-bench`, `proximadb-migrate` | Linux x86_64 | [anvai-labs/proximaDB](https://github.com/anvai-labs/proximaDB) |
 InferFlux's formula follows v0.5.0. The standard Linux release archives are
 CPU-only; keep a separately accepted CUDA/ROCm deployment on its source-qualified
 GPU build. Installing this formula does not upgrade or validate that serving
 runtime. See the [release acceptance and deployment limits](https://github.com/anvai-labs/inferflux/blob/develop/docs/releases/v0.5.0.md).
+
+## Data tools
+
+`dq-kernel` is a CLI/Python product, **not a localhost web UI**. It installs
+`dq-kernel` (run checks) and `dq-validate` (validate HOCON rules). The formula
+includes Spark 3.5.9, PyDeequ 1.7.0, Python 3.12, and Java 17. It does not
+start a background service. Spark's own job monitor is not a dq-kernel UI.
+
+```bash
+dq-validate --format json /absolute/path/rules.conf
+dq-kernel file:///absolute/path/rules.conf --spark-master 'local[2]' \
+  --report-json report.json --dataset-id <immutable-dataset-id> \
+  --dataset-sha256 <sha256-of-the-input-dataset>
+```
+
+The rules must reference datasets available to that Spark session/catalog.
+Use a `file://` URI with `dq-kernel`; the released framework treats a bare
+path as inline HOCON. A passing run returns 0; failed checks return 1. Reports
+use `dq-report/v1` and include dataset and rule-set digests. Optional cloud
+and Great Expectations integrations are not bundled. Deequ rules require the
+matching upstream Deequ JVM artifact; the built-in custom checks tested by
+this tap run without downloading a JVM extension.
+
+`proximadb` installs the three public Linux binaries and example configuration
+under `$(brew --prefix proximadb)/share/proximadb/config`. Copy and configure
+an example before running `proximadb-server --config <path>`. Installation
+starts no server and changes no existing database. The upstream v0.4.0 server
+release has no macOS or Linux arm64 archive. The embedded Python engine is a
+separate source-only distribution at this version; `brew install proximadb`
+does not provide `import proximadb_embedded`.
 
 ## Casks
 
@@ -77,7 +110,9 @@ public reachability, macOS+Linux coverage):
 
 | Repo | Verdict | Reason |
 |---|---|---|
-| proximaDB | skip | database server, no macOS build; its deb/rpm/msi cover Linux/Windows. **Decision 2026-08-31: stays skipped** (standing default; revisit only if macOS builds get funded upstream) |
+| proximaDB | **live, Linux x86_64** | Owner selected server packaging on 2026-10-15, superseding the earlier macOS-build hold. v0.4.0's published Linux archive is installed without a source build; macOS remains unsupported. |
+| dq-kernel | **live** | OSS v0.1.0 Python release with pinned Spark and PyDeequ resources. CI installs it and checks real passing/failing Spark checks and JSON reports on Linux and macOS. |
+| ProximaDB embedded | pending artifacts | v0.4.0 publishes an embedded source archive, but no corresponding release wheels were found on GitHub or PyPI. No embedded formula is published by this change. |
 | agentbrowser | **live** (formula since 2026-08-31) | was `anvaiops/agentbrowser` (private); the owner chose to make it public and it moved to [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) on 2026-08-31 — raw per-target binaries + `sha256sums.txt` per release; the formula ships all four unix targets (CLI binary added in v1.8.2 alongside the MCP binary and server tarball) |
 | ibkrtrading (anvaiops) | skip | private + no releases |
 | inferflux | **live** (formula since 2026-09-06) | first release v0.1.0 (2026-09-04) initially published asset-less — tag pushes never ran CI, so the Release Packaging workflow (cpack tgz/deb/rpm/pkg/dmg/msi + `sha256sums.txt`) never fired; fixed by adding `v*` tag triggers to inferflux CI (PRs #79/#80) and re-cutting the tag. v0.1.1 (2026-09-07) added a native Linux-arm64 packaging leg upstream (PRs #92/#94). The formula ships the Darwin-arm64, Linux-x86_64, and Linux-aarch64 cpack tgz archives |
@@ -151,12 +186,24 @@ push one empty commit to the PR branch with a real token
 usual. Same for reviewing: the bump diff must always be exactly the version
 strings and `sha256` lines.
 
+`dq-kernel` and `proximadb`: **Actions → Update data tools** accepts a product
+and optional stable tag, and checks latest GitHub releases every six hours.
+The updater downloads and hashes release bytes; dq-kernel regenerates its
+entire Spark/Deequ dependency closure, including pinned build backends, and
+ProximaDB verifies the archive against `SHA256SUMS.txt`. Updates open PRs and
+explicitly run CI; they never merge automatically. Manual regeneration:
+
+```bash
+python3.12 scripts/update-dq-kernel.py --tag v0.1.0
+python3 scripts/update-proximadb.py --tag v0.4.0
+```
+
 ## Validation
 
 CI runs on every push to `main` (and every PR): syntax + release-contract
 checks, then `brew audit` on every formula followed by a real
 `brew install` and `brew test` of each, against the checked-out tap on a Linux
-runner. Casks get the same treatment on a macOS runner: `brew audit --cask`
+runner. dq-kernel also gets a real macOS install and functional test. Casks get the same treatment on a macOS runner: `brew audit --cask`
 plus a real `brew install --cask` and an install smoke (bundle identity,
 embedded sidecars, quarantine, Gatekeeper status) — no `brew test`, which
 does not exist for casks. The required `CI Success` status check on `main`

@@ -1,0 +1,87 @@
+name: Update data tools
+
+on:
+  schedule:
+    - cron: '41 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      product:
+        description: Product to update
+        required: true
+        type: choice
+        options: [dq-kernel, proximadb]
+      tag:
+        description: Stable release tag; leave empty for latest
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  update:
+    strategy:
+      fail-fast: false
+      matrix:
+        product: ${{ github.event_name == 'schedule' && fromJSON('["dq-kernel","proximadb"]') || fromJSON(format('["{0}"]', inputs.product)) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: update-${{ matrix.product }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.12'
+      - name: Resolve stable release and regenerate resources
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRODUCT: ${{ matrix.product }}
+          REQUESTED_TAG: ${{ inputs.tag }}
+        run: |
+          python - <<'PY'
+          import json, os, pathlib, re, subprocess, sys
+          product = os.environ["PRODUCT"]
+          repository = "proximaDB" if product == "proximadb" else product
+          requested = os.environ.get("REQUESTED_TAG", "")
+          if requested and not re.fullmatch(r"v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", requested):
+              raise SystemExit("Expected a stable vX.Y.Z tag")
+          endpoint = f"tags/{requested}" if requested else "latest"
+          release = json.loads(subprocess.check_output([
+              "gh", "api", f"repos/anvai-labs/{repository}/releases/{endpoint}"]))
+          tag = release["tag_name"]
+          if release["draft"] or release["prerelease"]:
+              raise SystemExit("Expected a public stable release")
+          if not re.fullmatch(r"v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", tag):
+              raise SystemExit("Expected a stable vX.Y.Z tag")
+          formula = pathlib.Path(f"Formula/{product}.rb").read_text()
+          current = re.search(r"releases/download/(v[0-9.]+)/", formula).group(1)
+          if tag != current:
+              subprocess.run([sys.executable, f"scripts/update-{product}.py", "--tag", tag], check=True)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"tag={tag}\n")
+          PY
+      - name: Open or update the bump PR
+        id: pr
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        with:
+          branch: automation/update-${{ matrix.product }}-formula
+          delete-branch: true
+          commit-message: '${{ matrix.product }} ${{ steps.release.outputs.tag }}'
+          title: '${{ matrix.product }} ${{ steps.release.outputs.tag }}'
+          body: Release bytes downloaded and hashed; dependency resources regenerated where applicable. Real Homebrew install and functional tests must pass before merge.
+          add-paths: |
+            Formula/${{ matrix.product }}.rb
+            tools/dq-kernel-resources.json
+      - name: Run CI on the updated branch
+        if: steps.pr.outputs.pull-request-operation == 'created' || steps.pr.outputs.pull-request-operation == 'updated'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PRODUCT: ${{ matrix.product }}
+        run: gh workflow run ci.yml --ref "automation/update-${PRODUCT}-formula"
