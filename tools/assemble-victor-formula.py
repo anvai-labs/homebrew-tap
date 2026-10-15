@@ -13,6 +13,7 @@ blocks are never touched by regeneration.
 
 import pathlib
 import sys
+import textwrap
 
 
 def main() -> int:
@@ -21,7 +22,7 @@ def main() -> int:
     lines = path.read_text().splitlines()
     anchor = next(i for i, line in enumerate(lines) if line == "  preserve_rpath")
     install = next(i for i, line in enumerate(lines) if line == "  def install")
-    rebuilt = lines[: anchor + 1] + ["", ""] + resources.splitlines() + [""] + lines[install:]
+    rebuilt = lines[: anchor + 1] + [""] + textwrap.indent(resources, "  ").splitlines() + [""] + lines[install:]
     path.write_text("\n".join(rebuilt) + "\n")
     print(f"spliced resources between lines {anchor + 1} and {install + 1}")
     return 0

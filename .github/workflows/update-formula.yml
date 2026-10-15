@@ -1,8 +1,6 @@
 name: Update Formula
 
 on:
-  schedule:
-    - cron: '0 */6 * * *'
   workflow_dispatch:
     inputs:
       version:
@@ -13,6 +11,11 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
+
+concurrency:
+  group: update-formula
+  cancel-in-progress: false
 
 jobs:
   update:
@@ -23,6 +26,10 @@ jobs:
         with:
           persist-credentials: false
 
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.12'
+
       - name: Resolve release metadata from PyPI
         id: release
         env:
@@ -31,19 +38,36 @@ jobs:
           python - <<'PY'
           import json
           import os
+          import re
+          import hashlib
+          from pathlib import Path
           import urllib.request
 
           with urllib.request.urlopen("https://pypi.org/pypi/victor-ai/json", timeout=20) as response:
               project = json.load(response)
           version = os.environ.get("REQUESTED_VERSION") or project["info"]["version"]
+          if not re.fullmatch(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", version):
+              raise SystemExit("Expected a stable X.Y.Z release")
+          current = re.search(r'victor_ai-([0-9.]+)\.tar\.gz', Path("Formula/victor.rb").read_text()).group(1)
+          if tuple(map(int, version.split('.'))) < tuple(map(int, current.split('.'))):
+              raise SystemExit("Refusing to downgrade Victor")
           files = project["releases"].get(version, [])
-          sdist = next((item for item in files if item["packagetype"] == "sdist"), None)
+          sdist = next((item for item in files if item["packagetype"] == "sdist" and not item.get("yanked")), None)
           if not sdist:
               raise SystemExit(f"No sdist found on PyPI for victor-ai {version}")
+          with urllib.request.urlopen(sdist["url"], timeout=120) as response:
+              archive = response.read()
+              digest = hashlib.sha256(archive).hexdigest()
+          if digest != sdist["digests"]["sha256"]:
+              raise SystemExit("Downloaded sdist digest differs from PyPI metadata")
+          cache = Path(os.environ["RUNNER_TEMP"]) / "victor-wheels"
+          cache.mkdir(exist_ok=True)
+          (cache / f"victor_ai-{version}.tar.gz").write_bytes(archive)
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"changed={str(version != current).lower()}\n")
               output.write(f"version={version}\n")
               output.write(f"url={sdist['url']}\n")
-              output.write(f"sha256={sdist['digests']['sha256']}\n")
+              output.write(f"sha256={digest}\n")
           PY
 
       - name: Update formula fields
@@ -64,14 +88,45 @@ jobs:
           path.write_text(text, encoding="utf-8")
           PY
 
+      - name: Resolve and vendor the new release dependency closure
+        if: steps.release.outputs.changed == 'true'
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/victor-resolver"
+          "$RUNNER_TEMP/victor-resolver/bin/python" -m pip install --dry-run --ignore-installed \
+            --report "$RUNNER_TEMP/victor-resolve.json" "victor-ai==$VERSION"
+          python tools/gen-victor-resources.py --report "$RUNNER_TEMP/victor-resolve.json" \
+            --manifest tools/victor-resources.json --cache "$RUNNER_TEMP/victor-wheels" \
+            > "$RUNNER_TEMP/victor-resources.rb"
+          python tools/assemble-victor-formula.py "$RUNNER_TEMP/victor-resources.rb"
+          # Prove the declared resources close the dependency graph offline.
+          "$RUNNER_TEMP/victor-resolver/bin/python" -m pip install --no-index \
+            --find-links "$RUNNER_TEMP/victor-wheels" setuptools wheel
+          "$RUNNER_TEMP/victor-resolver/bin/python" -m pip install --no-index --no-build-isolation \
+            --find-links "$RUNNER_TEMP/victor-wheels" "victor-ai==$VERSION"
+          "$RUNNER_TEMP/victor-resolver/bin/python" -m pip check
+
       - name: Validate generated formula
         run: python -m unittest discover -s tests -v
 
       - name: Open or update formula pull request
+        id: pr
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
           branch: automation/update-victor-formula
           delete-branch: true
           commit-message: 'chore: update Victor formula to ${{ steps.release.outputs.version }}'
           title: 'chore: update Victor formula to ${{ steps.release.outputs.version }}'
-          body: Automated PyPI release metadata and digest update. CI validates the downloaded archive before merge.
+          body: Automated PyPI release update with downloaded sdist and regenerated wheel resources. The updater verifies the dependency closure offline; CI validates the archive and installs the formula before merge.
+          add-paths: |
+            Formula/victor.rb
+            tools/victor-resources.json
+
+      - name: Run CI on the updated PR branch
+        if: steps.pr.outputs.pull-request-operation == 'created' || steps.pr.outputs.pull-request-operation == 'updated'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run ci.yml --ref automation/update-victor-formula
