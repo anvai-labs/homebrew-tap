@@ -62,9 +62,9 @@ this tap run without downloading a JVM extension.
 `proximadb` installs the three public Linux binaries and example configuration
 under `$(brew --prefix proximadb)/share/proximadb/config`. Copy and configure
 an example before running `proximadb-server --config <path>`. Installation
-starts no server and changes no existing database. The upstream v0.4.0 server
+starts no server and changes no existing database. The upstream v0.4.1 server
 release has no macOS or Linux arm64 archive. The embedded Python engine is a
-separate source-only distribution at this version; `brew install proximadb`
+separate PyPI distribution (wheels since 0.4.1); `brew install proximadb`
 does not provide `import proximadb_embedded`.
 
 ## Casks
@@ -110,9 +110,9 @@ public reachability, macOS+Linux coverage):
 
 | Repo | Verdict | Reason |
 |---|---|---|
-| proximaDB | **live, Linux x86_64** | Owner selected server packaging on 2026-10-15, superseding the earlier macOS-build hold. v0.4.0's published Linux archive is installed without a source build; macOS remains unsupported. |
+| proximaDB | **live, Linux x86_64** | Owner selected server packaging on 2026-10-15, superseding the earlier macOS-build hold. v0.4.1's published Linux archive is installed without a source build (0.4.0 → 0.4.1 bump verified against the release `SHA256SUMS.txt`); macOS remains unsupported. |
 | dq-kernel | **live** | OSS v0.1.0 Python release with pinned Spark and PyDeequ resources. CI installs it and checks real passing/failing Spark checks and JSON reports on Linux and macOS. |
-| ProximaDB embedded | pending artifacts | v0.4.0 publishes an embedded source archive, but no corresponding release wheels were found on GitHub or PyPI. No embedded formula is published by this change. |
+| ProximaDB embedded | wheels exist (0.4.1), formula pending | v0.4.1 publishes `cp311-abi3` wheels on PyPI (macOS arm64, Linux x86_64/aarch64, Windows) alongside the source archive; v0.4.0 had none. No embedded formula is published by this change. |
 | agentbrowser | **live** (formula since 2026-08-31) | was `anvaiops/agentbrowser` (private); the owner chose to make it public and it moved to [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) on 2026-08-31 — raw per-target binaries + `sha256sums.txt` per release; the formula ships all four unix targets (CLI binary added in v1.8.2 alongside the MCP binary and server tarball) |
 | ibkrtrading (anvaiops) | skip | private + no releases |
 | inferflux | **live** (formula since 2026-09-06) | first release v0.1.0 (2026-09-04) initially published asset-less — tag pushes never ran CI, so the Release Packaging workflow (cpack tgz/deb/rpm/pkg/dmg/msi + `sha256sums.txt`) never fired; fixed by adding `v*` tag triggers to inferflux CI (PRs #79/#80) and re-cutting the tag. v0.1.1 (2026-09-07) added a native Linux-arm64 packaging leg upstream (PRs #92/#94). The formula ships the Darwin-arm64, Linux-x86_64, and Linux-aarch64 cpack tgz archives |
@@ -195,7 +195,7 @@ explicitly run CI; they never merge automatically. Manual regeneration:
 
 ```bash
 python3.12 scripts/update-dq-kernel.py --tag v0.1.0
-python3 scripts/update-proximadb.py --tag v0.4.0
+python3 scripts/update-proximadb.py --tag v0.4.1
 ```
 
 ## Validation
