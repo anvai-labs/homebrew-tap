@@ -9,6 +9,13 @@ class DqKernel < Formula
   sha256 "70a762f2f17242a577ea833f80a31e3c618b4bb07f7d137b80348e25b3672ba1"
   license "Apache-2.0"
 
+  livecheck do
+    url :stable
+    strategy :github_latest
+  end
+
+  # pyyaml wheels (like victor's) declare the bundled libyaml linkage.
+  depends_on "libyaml"
   depends_on "openjdk@17"
   depends_on "python@3.12"
 
@@ -18,11 +25,6 @@ class DqKernel < Formula
   end
   on_linux do
     depends_on arch: :x86_64
-  end
-
-  livecheck do
-    url :stable
-    strategy :github_latest
   end
 
   # BEGIN GENERATED RESOURCES
@@ -155,7 +157,7 @@ class DqKernel < Formula
     ENV["PIP_NO_INDEX"] = "1"
     backends = %w[packaging setuptools wheel poetry-core]
     venv.pip_install downloads.values_at(*backends), build_isolation: false
-    venv.pip_install downloads.reject { |name, _| backends.include?(name) }.values, build_isolation: false
+    venv.pip_install downloads.except(*backends).values, build_isolation: false
     venv.pip_install buildpath, build_isolation: false
     system "python3.12", "-m", "pip", "--python=#{libexec}/bin/python", "check"
     bin.install libexec/"bin/dq-kernel", libexec/"bin/dq-validate"
