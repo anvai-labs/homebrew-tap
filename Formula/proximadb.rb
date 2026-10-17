@@ -1,19 +1,19 @@
 class Proximadb < Formula
   desc "Vector, document, and graph database server"
   homepage "https://github.com/anvai-labs/proximaDB"
-  url "https://github.com/anvai-labs/proximaDB/releases/download/v0.4.0/proximadb-0.4.0-x86_64-unknown-linux-gnu.tar.gz"
-  sha256 "e18c2f5581e3b8891167c6d9852e93590877eb7750299693b6522012ef0c6512"
+  url "https://github.com/anvai-labs/proximaDB/releases/download/v0.4.1/proximadb-0.4.1-x86_64-unknown-linux-gnu.tar.gz"
+  sha256 "13ddc6628408fe8a88157b12fe53af4275a4c697460490ebe45b9c62b4510bc6"
   license "Apache-2.0"
-
-  depends_on arch: :x86_64
-  depends_on :linux
-  depends_on "openssl@3"
-  depends_on "xz"
 
   livecheck do
     url :stable
     strategy :github_latest
   end
+
+  depends_on arch: :x86_64
+  depends_on :linux
+  depends_on "openssl@3"
+  depends_on "xz"
 
   def install
     bin.install "proximadb-server", "proximadb-bench", "proximadb-migrate"
