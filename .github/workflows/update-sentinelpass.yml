@@ -36,30 +36,31 @@ jobs:
           mkdir -p "$dir"
           mac="sentinelpass-${ver}-macos.tar.gz"
           linux="sentinelpass-${ver}-linux.tar.gz"
-          dmg="sentinelpass-${ver}-macos.dmg"
+          zip="sentinelpass-${ver}-macos-arm64.zip"
           curl -fsSL "$base/$mac"   -o "$dir/mac.tgz"
-          curl -fsSL "$base/$linux" -o "$dir/linux.tgz"
+          curl -fsSL "$base/linux" -o "$dir/linux.tgz"
           {
             echo "version=$ver"
             echo "mac_sha=$(sha256sum "$dir/mac.tgz" | cut -d' ' -f1)"
             echo "linux_sha=$(sha256sum "$dir/linux.tgz" | cut -d' ' -f1)"
           } >> "$GITHUB_OUTPUT"
-          # Cask artifact: skip gracefully on formula-only releases, but when
-          # present, cross-check against the release's own sha256sums.txt so
-          # an upstream rename or regeneration fails loudly here instead of
-          # at user install time.
-          if curl -fsSL "$base/$dmg" -o "$dir/app.dmg"; then
-            dmg_sha="$(sha256sum "$dir/app.dmg" | cut -d' ' -f1)"
+          # Cask artifact (the arch-suffixed zip, since 0.18.0 — before that
+          # the arch-generic DMG): skip gracefully on formula-only releases,
+          # but when present, cross-check against the release's own
+          # sha256sums.txt so an upstream rename or regeneration fails loudly
+          # here instead of at user install time.
+          if curl -fsSL "$base/$zip" -o "$dir/app.zip"; then
+            zip_sha="$(sha256sum "$dir/app.zip" | cut -d' ' -f1)"
             sums="$(curl -fsSL "$base/sha256sums.txt")"
-            echo "$sums" | grep -q "$dmg_sha" \
-              || { echo "::error::DMG sha256 not present in release sha256sums.txt — asset renamed or regenerated?"; exit 1; }
+            echo "$sums" | grep -q "$zip_sha" \
+              || { echo "::error::zip sha256 not present in release sha256sums.txt — asset renamed or regenerated?"; exit 1; }
             {
-              echo "dmg_sha=$dmg_sha"
-              echo "has_dmg=true"
+              echo "zip_sha=$zip_sha"
+              echo "has_zip=true"
             } >> "$GITHUB_OUTPUT"
           else
-            echo "::warning::no ${dmg} on ${TAG}; the cask will be left untouched"
-            echo "has_dmg=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::no ${zip} on ${TAG}; the cask will be left untouched"
+            echo "has_zip=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Rewrite the formula and cask versions and checksums
@@ -68,8 +69,8 @@ jobs:
           TAG: ${{ inputs.tag }}
           MAC_SHA: ${{ steps.shas.outputs.mac_sha }}
           LINUX_SHA: ${{ steps.shas.outputs.linux_sha }}
-          DMG_SHA: ${{ steps.shas.outputs.dmg_sha }}
-          HAS_DMG: ${{ steps.shas.outputs.has_dmg }}
+          ZIP_SHA: ${{ steps.shas.outputs.zip_sha }}
+          HAS_ZIP: ${{ steps.shas.outputs.has_zip }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
@@ -132,10 +133,10 @@ jobs:
               [os.environ["MAC_SHA"], os.environ["LINUX_SHA"]],
           )
           changed_cask = False
-          if os.environ["HAS_DMG"] == "true":
+          if os.environ["HAS_ZIP"] == "true":
               changed_cask = bump_cask(
                   pathlib.Path("Casks/sentinelpass.rb"),
-                  os.environ["DMG_SHA"],
+                  os.environ["ZIP_SHA"],
               )
           if not (changed_formula or changed_cask):
               print(f"formula and cask already at {tag}")

@@ -3,12 +3,14 @@ cask "sentinelpass" do
   # fully version-templated (cask audit requires a versioned URL), so the
   # bump bot rewrites only this stanza and the arm checksum below.
   version "0.18.0"
-  # Arm64-only upstream; the DMG asset name is arch-generic. The sum is
-  # recomputed from the actual downloaded DMG and cross-checked against the
-  # release's sha256sums.txt on every bump.
-  sha256 arm: "2a68fef76b711eb96ac8e10e20dc8709cde212c4f6f06d954dd0dca7e0c7fc84"
+  # Arm64-only upstream; the zip asset name is arch-suffixed (the cask used
+  # the arch-generic DMG through 0.17.0 and migrated to the zip with 0.18.0,
+  # the first release shipping it — upstream #175). The sum is recomputed
+  # from the actually downloaded zip and cross-checked against the release's
+  # sha256sums.txt on every bump.
+  sha256 arm: "424336beb7107aaf2c814188d00ed702b6aeac7ba57917e9531f060b83549a72"
 
-  url "https://github.com/anvai-labs/sentinelpass/releases/download/v#{version}/sentinelpass-#{version}-macos.dmg"
+  url "https://github.com/anvai-labs/sentinelpass/releases/download/v#{version}/sentinelpass-#{version}-macos-arm64.zip"
   name "SentinelPass"
   desc "Local-first password manager with browser autofill (desktop app)"
   homepage "https://github.com/anvai-labs/sentinelpass"
@@ -20,14 +22,15 @@ cask "sentinelpass" do
   end
 
   # Upstream ships arm64 macOS only (no Intel/universal2 build exists); the
-  # arch-generic DMG name must not suggest otherwise.
+  # arch-suffixed zip name says so explicitly.
   depends_on arch: :arm64
-
   # The .app is self-contained: it embeds and manages its own daemon and
   # browser native-messaging host (Contents/Resources/src-tauri/resources/bin)
   # and owns the daemon lifecycle. No `binary` stanzas on purpose — the CLI
   # tools belong to Formula/sentinelpass.rb, and a cask binary would collide
   # with the formula's /opt/homebrew/bin/sentinelpass-ui.
+  depends_on :macos
+
   app "SentinelPass.app"
 
   uninstall quit: "com.sentinelpass.app"
@@ -36,9 +39,9 @@ cask "sentinelpass" do
     # The vault lives in ~/Library/Application Support/PasswordManager and
     # MUST survive uninstall and --zap (upstream docs/MACOS_INSTALL.md).
     "~/Library/Caches/com.sentinelpass.app",
-    "~/Library/WebKit/com.sentinelpass.app",
     "~/Library/HTTPStorages/com.sentinelpass.app",
     "~/Library/Saved Application State/com.sentinelpass.app.savedState",
+    "~/Library/WebKit/com.sentinelpass.app",
   ]
 
   caveats <<~EOS

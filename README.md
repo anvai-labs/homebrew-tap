@@ -137,16 +137,16 @@ repository with the new tag (e.g. `v0.9.0`) — same flow as sandhi: it
 downloads the release assets, recomputes the SHA-256s, and opens the bump PR
 with a changed-file guard. The bot bumps **both** `Formula/sentinelpass.rb`
 and `Casks/sentinelpass.rb` in one PR (skipping the cask on releases that
-ship no DMG), downloads everything into `RUNNER_TEMP`, and cross-checks the
-DMG sum against the release's `sha256sums.txt`. The manual procedure, if you
+ship no zip), downloads everything into `RUNNER_TEMP`, and cross-checks the
+zip sum against the release's `sha256sums.txt`. The manual procedure, if you
 ever need to do it by hand — run it from a scratch clone of this tap:
 
 ```bash
 V=<new version>   # e.g. V=0.8.0
 curl -fsSL -o /tmp/sp-macos.tgz "https://github.com/anvai-labs/sentinelpass/releases/download/v${V}/sentinelpass-${V}-macos.tar.gz"
 curl -fsSL -o /tmp/sp-linux.tgz "https://github.com/anvai-labs/sentinelpass/releases/download/v${V}/sentinelpass-${V}-linux.tar.gz"
-curl -fsSL -o /tmp/sp.dmg      "https://github.com/anvai-labs/sentinelpass/releases/download/v${V}/sentinelpass-${V}-macos.dmg"
-shasum -a 256 /tmp/sp-macos.tgz /tmp/sp-linux.tgz /tmp/sp.dmg
+curl -fsSL -o /tmp/sp.zip      "https://github.com/anvai-labs/sentinelpass/releases/download/v${V}/sentinelpass-${V}-macos-arm64.zip"
+shasum -a 256 /tmp/sp-macos.tgz /tmp/sp-linux.tgz /tmp/sp.zip
 curl -fsSL "https://github.com/anvai-labs/sentinelpass/releases/download/v${V}/sha256sums.txt"   # cross-check all three sums
 ```
 
@@ -156,9 +156,11 @@ only the `version` stanza and the `sha256 arm:` line — the cask URL is fully
 version-templated, and cask audit requires it to stay that way (a literal URL
 is treated as unversioned). Nothing else changes. Keep the commands above:
 they double as the diff-shape check (they reproduce the bot's exact change).
-Asset names are arch-unnamed (`-macos.tar.gz` and `-macos.dmg` are arm64-only),
-so until upstream renames them per-arch the formula and cask cannot cover more
-platforms than these.
+Asset names are arch-unnamed for the formula tarballs (`-macos.tar.gz` and
+`-linux.tar.gz`, arm64/`x86_64`-only respectively), so until upstream renames
+them per-arch the formula cannot cover more platforms than these. The cask
+migrated from the arch-generic `-macos.dmg` to the arch-suffixed
+`-macos-arm64.zip` with 0.18.0 (the first release shipping it, upstream #175).
 
 Upstream's own release.yml "Bump Homebrew formula" job is retired for this
 purpose: it pushed the bump directly to `main`, which checks-only branch
