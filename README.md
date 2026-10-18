@@ -110,7 +110,7 @@ public reachability, macOS+Linux coverage):
 
 | Repo | Verdict | Reason |
 |---|---|---|
-| proximaDB | **live, Linux x86_64** | Owner selected server packaging on 2026-10-15, superseding the earlier macOS-build hold. v0.4.1's published Linux archive is installed without a source build (0.4.0 → 0.4.1 bump verified against the release `SHA256SUMS.txt`); macOS remains unsupported. |
+| proximaDB | **live, Linux x86_64** | Owner selected server packaging on 2026-10-15, superseding the earlier macOS-build hold. v0.4.1's published Linux archive is installed without a source build (0.4.0 → 0.4.1 bump verified against the release `SHA256SUMS.txt`); macOS remains unsupported. Since 2026-10-18 upstream's release workflow lands tap bumps itself via PR (see maintainers section); the tap's updater is the fallback. |
 | dq-kernel | **live** | OSS v0.1.0 Python release with pinned Spark and PyDeequ resources. CI installs it and checks real passing/failing Spark checks and JSON reports on Linux and macOS. |
 | ProximaDB embedded | wheels exist (0.4.1), formula pending | v0.4.1 publishes `cp311-abi3` wheels on PyPI (macOS arm64, Linux x86_64/aarch64, Windows) alongside the source archive; v0.4.0 had none. No embedded formula is published by this change. |
 | agentbrowser | **live** (formula since 2026-08-31) | was `anvaiops/agentbrowser` (private); the owner chose to make it public and it moved to [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) on 2026-08-31 — raw per-target binaries + `sha256sums.txt` per release; the formula ships all four unix targets (CLI binary added in v1.8.2 alongside the MCP binary and server tarball) |
@@ -197,6 +197,22 @@ explicitly run CI; they never merge automatically. Manual regeneration:
 python3.12 scripts/update-dq-kernel.py --tag v0.1.0
 python3 scripts/update-proximadb.py --tag v0.4.1
 ```
+
+Since 2026-10-18, `proximadb` bumps are **upstream-driven in the normal
+case**: proximaDB's release.yml `update-homebrew` job opens the PR here
+itself, using the fine-grained PAT `proximadb-homebrew-tap-publish` (stored
+as `HOMEBREW_TAP_TOKEN` on proximaDB; scoped to this tap only — Contents +
+Pull requests read/write, nothing else). Its renderer rewrites the tap's
+current formula `url`/`sha256` only (the same edit
+`scripts/update-proximadb.py` makes, with the sha256 verified against both
+`SHA256SUMS.txt` and the downloaded bytes), then the publisher waits for
+this tap's required `CI Success` before squash-merging, rebasing onto
+current `main` if it moved mid-CI. Direct pushes to `main` are never
+attempted (branch protection rejects them, GH006). This tap's Update data
+tools workflow remains the fallback: it opens the same PR within six hours
+if the upstream job ran without the secret, and the manual commands above
+always work. If both open a PR for the same version, whichever lands first
+wins; close the other.
 
 ## Validation
 
