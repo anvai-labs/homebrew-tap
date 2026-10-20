@@ -11,14 +11,14 @@ class Inferflux < Formula
   # Versions are literal so brew detects them from the URL; the Update
   # Inferflux Formula workflow rewrites them plus the sha256 lines.
   if OS.mac? && Hardware::CPU.arm64?
-    url "https://github.com/anvai-labs/inferflux/releases/download/v0.5.0/inferflux-0.5.0-Darwin-arm64.tar.gz"
-    sha256 "94f7a4f0074081137190ca48c2f762b2c039dd395fc2450345ccaca1076579b5"
+    url "https://github.com/anvai-labs/inferflux/releases/download/v0.5.2/inferflux-0.5.2-Darwin-arm64.tar.gz"
+    sha256 "56314ea9a58573e26bde40c05825e0e19525266270fdf58f56a1b82501b57a5e"
   elsif OS.linux? && Hardware::CPU.intel?
-    url "https://github.com/anvai-labs/inferflux/releases/download/v0.5.0/inferflux-0.5.0-Linux-x86_64.tar.gz"
-    sha256 "29a1fcee2b817a2610f7a9d2bee1e8f370915b5dc8b5403285595e4defef7d1c"
+    url "https://github.com/anvai-labs/inferflux/releases/download/v0.5.2/inferflux-0.5.2-Linux-x86_64.tar.gz"
+    sha256 "b87b54bb68d3d1f7d94155d1fa05adaedf76790221e363dfd8d8b9b0ddd8dd08"
   elsif OS.linux? && Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-    url "https://github.com/anvai-labs/inferflux/releases/download/v0.5.0/inferflux-0.5.0-Linux-aarch64.tar.gz"
-    sha256 "0e2ab6c1f84c87c50b3ca1a0904d0383f4f6b098991c338e68311663665cce64"
+    url "https://github.com/anvai-labs/inferflux/releases/download/v0.5.2/inferflux-0.5.2-Linux-aarch64.tar.gz"
+    sha256 "9c1eac2e6238e7d70b5c34e64b594aaea2d7558238ccd4802a9833b1cf84b2f4"
   end
 
   livecheck do
