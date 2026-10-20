@@ -32,10 +32,12 @@ URL is spelled out so the source is never ambiguous.)
 | `inferflux` | `inferfluxd` (C++ LLM inference server) + `inferctl` (operator CLI) | macOS arm64, Linux x86_64, Linux arm64 | [anvai-labs/inferflux](https://github.com/anvai-labs/inferflux) |
 | `dq-kernel` | `dq-kernel` + `dq-validate`, with pinned Spark/PyDeequ dependencies | macOS 14+ arm64, Linux x86_64 | [anvai-labs/dq-kernel](https://github.com/anvai-labs/dq-kernel) |
 | `proximadb` | `proximadb-server`, `proximadb-bench`, `proximadb-migrate` | Linux x86_64 | [anvai-labs/proximaDB](https://github.com/anvai-labs/proximaDB) |
-InferFlux's formula follows v0.5.0. The standard Linux release archives are
-CPU-only; keep a separately accepted CUDA/ROCm deployment on its source-qualified
-GPU build. Installing this formula does not upgrade or validate that serving
-runtime. See the [release acceptance and deployment limits](https://github.com/anvai-labs/inferflux/blob/develop/docs/releases/v0.5.0.md).
+InferFlux's formula follows v0.5.2 (since 2026-10-20; v0.5.1 was skipped in
+the tap). The standard Linux release archives are CPU-only; keep a separately
+accepted CUDA/ROCm deployment on its source-qualified GPU build. Installing
+this formula does not upgrade or validate that serving runtime. See the
+[release acceptance and deployment
+limits](https://github.com/anvai-labs/inferflux/blob/develop/docs/releases/v0.5.2.md).
 
 ## Data tools
 
