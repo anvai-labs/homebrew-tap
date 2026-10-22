@@ -5,3 +5,12 @@ __pycache__/
 /*.tgz
 /*.bin
 /shot.json
+
+# Local working state that must never be committed: victor runtime data,
+# local policy-store credentials, and the pre-#60 bot-churn names kept
+# ignored so they cannot sneak back in.
+/.victor/
+/config/
+/ab.cli
+/sha256sums.txt
+/claudesession1.sh
