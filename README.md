@@ -173,8 +173,14 @@ this repository instead.
 `victor`: automatic — `update-formula.yml` polls PyPI every 6 hours (it rewrites only the
 sdist `url`/`sha256`). victor-ai itself is installed from that sdist; its PEP 517 build
 backend (`setuptools`/`wheel`) and runtime dependency closure ship as pinned wheel resources
-so `brew install` does not contact PyPI after Homebrew has fetched declared resources. After
-a major bump that changes dependency constraints, regenerate them:
+so `brew install` does not contact PyPI after Homebrew has fetched declared resources. Only
+the **base** install ships: upstream's optional extras — `graph` (victor-codegraph: tier 0/1
+chunking + tier 2.5 scope binding), `native` (victor-native, Rust) and `coding`/`verticals`
+(victor-coding) — are guarded imports with pure-Python fallbacks and are deliberately not
+vendored; tier 3 (SCIP) needs no pip deps (its `scip-*` producers are external npm/cargo
+CLIs). `tests/test_victor_resources.py` gates the closure against the pinned sdist's
+`requires_dist` + build requirements, so a bump that moves dependency constraints fails the
+unit tests instead of the real-install CI job. After such a failure, regenerate:
 `tools/gen-victor-resources.py` (see its header) + `tools/assemble-victor-formula.py`, then
 `brew style --fix Formula/victor.rb` and re-run `brew install && brew test`.
 
