@@ -6,8 +6,8 @@ class Victor < Formula
 
   desc "Enterprise-Ready AI Coding Assistant - Any model, any provider"
   homepage "https://github.com/anvai-labs/victor"
-  url "https://files.pythonhosted.org/packages/36/e9/a703d45ead2a866fd52bf759e68eaa826ef12e3cec3d1335b383aab8535f/victor_ai-0.13.1.tar.gz"
-  sha256 "70ed10a6f3dd25c10ddce511685c3f8bbc430b794326a0869d4adea4f93b87b2"
+  url "https://files.pythonhosted.org/packages/31/e7/56b4afdcdefbdc71487e3493acedde4d11d03c1877889d44115ba0ba77af/victor_ai-0.15.0.tar.gz"
+  sha256 "ce91a1894dcf440e9d372e8607fbbf9ab15da4ccde29e677535c10923b08f4c8"
   license "Apache-2.0"
 
   depends_on "libyaml"
@@ -24,6 +24,15 @@ class Victor < Formula
   # after a major victor bump that moves its dependency constraints.
   # sandhi-gateway ships no macOS-intel wheel, so victor targets macOS arm64
   # and Linux x86_64, like the rest of this tap.
+  #
+  # Only victor-ai's base install ships here, matching upstream's tested
+  # default (`pip install victor-ai`): the extras stay out on purpose —
+  # `graph` (victor-codegraph: tier 0/1 chunking + tier 2.5 scope binding),
+  # `native` (victor-native, Rust) and `coding`/`verticals` (victor-coding)
+  # are guarded imports with pure-Python fallbacks. Tier 3 (SCIP precise
+  # indexing) needs no pip deps at all; its scip-* producers are external
+  # npm/cargo CLIs. tests/test_victor_resources.py gates the base closure
+  # against the pinned sdist's requires_dist.
 
   # The pip-built extension modules keep @rpath install names and carry no
   # headerpad, so brew's keg dylib-ID rewrite fails on them; @rpath names are
@@ -71,8 +80,8 @@ class Victor < Formula
   end
 
   resource "anthropic" do
-    url "https://files.pythonhosted.org/packages/d1/65/54437e7edea49a3be9ef56f6b5965999bfdc52b9dadc9b448124ca51a594/anthropic-1.15.0-py3-none-any.whl"
-    sha256 "10189a7993c5c71a0a2d4bb80020ca6a2fd27679f51e627405da37251d15ff49"
+    url "https://files.pythonhosted.org/packages/02/f6/6c205e7e7fd2e6087692422b286fac4a2557ca60996b797276f23e03b431/anthropic-2.1.0-py3-none-any.whl"
+    sha256 "d776fa2ea9a07e20336a0668d1ef3a12357fdef75c895f54a050b3746b8e4de8"
   end
 
   resource "anyio" do
@@ -91,13 +100,13 @@ class Victor < Formula
   end
 
   resource "cachetools" do
-    url "https://files.pythonhosted.org/packages/fb/dd/044062b61d94c59c29ad0da6918e6a21106f5b115096e9c87081cdd96167/cachetools-7.2.3-py3-none-any.whl"
-    sha256 "85ef9d2703918bedf7f88caa0b06bb3bb7a71360eb0b05c20796b89fede6e30c"
+    url "https://files.pythonhosted.org/packages/5a/4c/694f7d44f2399b3901232d6ded1c88442a02fc8141936396d9289d951848/cachetools-7.2.4-py3-none-any.whl"
+    sha256 "4cfbebf3eec4040d2073b19c460511ad47eef7b852dbf9a0d385099b4dafa31e"
   end
 
   resource "certifi" do
-    url "https://files.pythonhosted.org/packages/0b/a7/71ac2cff56fec219ed242bb11b8efb69fcc4bec75db06fb7bfe35de520e6/certifi-2026.7.22-py3-none-any.whl"
-    sha256 "62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775"
+    url "https://files.pythonhosted.org/packages/c4/51/29046e48f693c54e5b7412216d447a1d8362c9653148d98c02cdf65fa733/certifi-2026.10.19-py3-none-any.whl"
+    sha256 "42d35340cc5b9ba78e818ddbff0c5b1c2b779de448a340fd1b989f5fa8670e1b"
   end
 
   resource "charset-normalizer" do
@@ -136,8 +145,8 @@ class Victor < Formula
   end
 
   resource "httpcore2" do
-    url "https://files.pythonhosted.org/packages/09/ba/a4568248771ce81957bfb7cc600264a40fbcda092391ee1c415c50be4bea/httpcore2-2.13.1-py3-none-any.whl"
-    sha256 "e1e05d4f25f7d7d496bfb96748f6f4b67657b03da069b3a68c36069f3db73d0a"
+    url "https://files.pythonhosted.org/packages/af/c2/ce417c397afa5181f0e3c6ff01a4d01639414e1adef08730d97571297151/httpcore2-2.16.0-py3-none-any.whl"
+    sha256 "5c4358319f2602d984ad93182c9fee5160f22e9da7babdda870a5e7c4e2dc34f"
   end
 
   resource "httpx" do
@@ -146,8 +155,8 @@ class Victor < Formula
   end
 
   resource "httpx2" do
-    url "https://files.pythonhosted.org/packages/d8/9c/6fe8931fd9f381042a9e4c7d5a7b4cbf7016b252bec0c99a49fce42c3326/httpx2-2.13.1-py3-none-any.whl"
-    sha256 "6dff50fabc270ee5fd25d845d0b078ed20564579744d6d962850975996d2f9a4"
+    url "https://files.pythonhosted.org/packages/7b/3d/2e4bc4fd1ef9770871669adb348d612a6e4786b303a23f9935b81c48dd60/httpx2-2.16.0-py3-none-any.whl"
+    sha256 "fd2c5d7909e8d86fe92d53020c310ca0e4e431b838c207c5754b9bbf0308d49a"
   end
 
   resource "idna" do
@@ -219,8 +228,8 @@ class Victor < Formula
   end
 
   resource "openai" do
-    url "https://files.pythonhosted.org/packages/03/2a/cf8077a715ffd5e426a2e010357e9b72c1fcf7232ae58687b8e10b7a622d/openai-3.34.0-py3-none-any.whl"
-    sha256 "49db52e2b7175a8ec0deb2878b0de957250b5e5451bbfb725258119e6e4bfa15"
+    url "https://files.pythonhosted.org/packages/be/e4/83f139714d10d75af2b6891a20c973945dd9b942b11cc407ba4536fb40b9/openai-3.36.1-py3-none-any.whl"
+    sha256 "4c15b6765fe1792c5ad753556f44c7f82c2920c5e9e40219c0fca97369e923d3"
   end
 
   resource "opentelemetry-api" do
@@ -306,8 +315,8 @@ class Victor < Formula
   end
 
   resource "pydantic-settings" do
-    url "https://files.pythonhosted.org/packages/53/f4/b987bf8c51e5b19a95fa66d1ee596074141e085d9c2ddf97920803c7029b/pydantic_settings-2.16.0-py3-none-any.whl"
-    sha256 "7e73acf7f61936a15e5a3b6eedaea29f133357faf7272f2607ba479b049dd7f2"
+    url "https://files.pythonhosted.org/packages/3c/74/fdf926afe145d8629c4b2ff57f4ea1d64ed7abc4d84d97463b2517a2547e/pydantic_settings-2.16.1-py3-none-any.whl"
+    sha256 "30f5313340da4e8f1b440d1910b92a5bc3ccbb6b4ba70ec2b8395bc921f418f5"
   end
 
   resource "pygments" do
@@ -418,8 +427,8 @@ class Victor < Formula
   end
 
   resource "soupsieve" do
-    url "https://files.pythonhosted.org/packages/49/ca/f639c80449997b88aba7bc9705d25dd76cc0844f45f187862fd8f8bb18fa/soupsieve-3.0.3-py3-none-any.whl"
-    sha256 "fa30e3ba4809cb81ce1f3209f2fbe3e779fc445f0439bc147a0d7c4601743f21"
+    url "https://files.pythonhosted.org/packages/07/66/473f7ca0be0b06e38ee8c85ee2db184e3981bd769fac2e7c19c8a8865211/soupsieve-3.0.4-py3-none-any.whl"
+    sha256 "8412826614f9c632227067d0985aeb9f584bd15efc852955430e097a9fe7afbf"
   end
 
   resource "tiktoken" do
@@ -491,8 +500,8 @@ class Victor < Formula
   end
 
   resource "wcwidth" do
-    url "https://files.pythonhosted.org/packages/9c/b4/0bfa065af506540d9d558e3e5548cff00bc1f9b24e6e2a8512498e8628de/wcwidth-0.9.2-py3-none-any.whl"
-    sha256 "89ca642c5bf0101157a09366be69fad0379db1f700ae39a920e103234573670e"
+    url "https://files.pythonhosted.org/packages/bf/12/e10aad98050389ef674c9f69409e38ae086c2104912644e1f9143b394301/wcwidth-0.9.3-py3-none-any.whl"
+    sha256 "e3c9069c54a2da0bf4f6c7e65a735cb1da0f47601a15cb5fef7e4b6ffca4cf60"
   end
 
   resource "yarl" do
