@@ -186,7 +186,7 @@ class DqKernel < Formula
     assert_match "--report-json", shell_output("#{bin}/dq-kernel --help")
     (testpath/"rules.conf").write <<~HOCON
       dqframework {
-        dqrules = [{engine = custom, checks = [{constraint = NoNegativeValues, level = Error}]}]
+        dqrules = [{engine = businessrules, checks = [{constraint = NoNegativeValues, level = Error}]}]
       }
     HOCON
     system bin/"dq-validate", testpath/"rules.conf"
@@ -207,7 +207,7 @@ class DqKernel < Formula
       try:
           Path("cli.conf").write_text('''dqframework {
             dataframes { input = brew_input }
-            dqrules = [{engine = custom, dataframes = [input],
+            dqrules = [{engine = businessrules, dataframes = [input],
               checks = [{constraint = NoNegativeValues, level = Error}]}]
           }''')
           for values, expected in [([(1,), (2,)], "passed"), ([(1,), (-2,)], "failed")]:

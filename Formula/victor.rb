@@ -6,8 +6,8 @@ class Victor < Formula
 
   desc "Enterprise-Ready AI Coding Assistant - Any model, any provider"
   homepage "https://github.com/anvai-labs/victor"
-  url "https://files.pythonhosted.org/packages/81/25/04352538ca1674b3b503c48dbe6629f710fa813cf36e62d16b5a63b452fc/victor_ai-0.17.0.tar.gz"
-  sha256 "944bee65591cadf935be117fc9f584b4322c7ba6d7acc0e1c60db348a43bc472"
+  url "https://files.pythonhosted.org/packages/80/db/e685c2b5a88d17813da612a46cc754939693e9df1af73075f666ffd8d119/victor_ai-0.19.0.tar.gz"
+  sha256 "cd9e5014513aa5b2d0b8e05afebddd607a72b3ed017484edb4e4741094f7605a"
   license "Apache-2.0"
 
   depends_on "libyaml"
@@ -80,8 +80,8 @@ class Victor < Formula
   end
 
   resource "anthropic" do
-    url "https://files.pythonhosted.org/packages/02/f6/6c205e7e7fd2e6087692422b286fac4a2557ca60996b797276f23e03b431/anthropic-2.1.0-py3-none-any.whl"
-    sha256 "d776fa2ea9a07e20336a0668d1ef3a12357fdef75c895f54a050b3746b8e4de8"
+    url "https://files.pythonhosted.org/packages/3f/29/eb3558ab6bf252a07ac41c76ac5b0ea24a0aa0c23f87a40aaf31a5f8dba4/anthropic-2.3.0-py3-none-any.whl"
+    sha256 "aa6a3984f9276f307933d42dc6f58b6efc821a5ecafbc8d1bb5993a066767622"
   end
 
   resource "anyio" do
@@ -100,13 +100,13 @@ class Victor < Formula
   end
 
   resource "cachetools" do
-    url "https://files.pythonhosted.org/packages/5a/4c/694f7d44f2399b3901232d6ded1c88442a02fc8141936396d9289d951848/cachetools-7.2.4-py3-none-any.whl"
-    sha256 "4cfbebf3eec4040d2073b19c460511ad47eef7b852dbf9a0d385099b4dafa31e"
+    url "https://files.pythonhosted.org/packages/53/98/c8201d54b354857a3050a52751ca482eb143c404b387ab2c41a0f981b610/cachetools-7.2.6-py3-none-any.whl"
+    sha256 "8722e08fc36ae0838a9a0a2ab9935554720de3343a62dad7aae7c595854c8623"
   end
 
   resource "certifi" do
-    url "https://files.pythonhosted.org/packages/c4/51/29046e48f693c54e5b7412216d447a1d8362c9653148d98c02cdf65fa733/certifi-2026.10.19-py3-none-any.whl"
-    sha256 "42d35340cc5b9ba78e818ddbff0c5b1c2b779de448a340fd1b989f5fa8670e1b"
+    url "https://files.pythonhosted.org/packages/32/d1/a3652fe2c19134d0d15922177821d863cbd7e842d53a21bbe7e8e3a1b5ac/certifi-2026.10.23-py3-none-any.whl"
+    sha256 "e9b54de76e530bb6cf0ccd036787103acb58fd42ba930ea8bf948ddbaa2f61d1"
   end
 
   resource "charset-normalizer" do
@@ -167,18 +167,18 @@ class Victor < Formula
   resource "jiter" do
     on_macos do
       on_arm do
-        url "https://files.pythonhosted.org/packages/0e/5e/0de4c6f84ffefa6809ffc2d550b9a314365acf7e7ec9b6c7375d49047900/jiter-0.17.0-cp312-cp312-macosx_11_0_arm64.whl"
-        sha256 "61aed66ee042b3b49ef85fdf75714234d055d89d8496ac1c6e47f89e7a30d5e4"
+        url "https://files.pythonhosted.org/packages/2e/e2/f4000a4d9c519ca019bf0e2922cc0c6b6db347be6303161382eda7635be7/jiter-0.18.0-cp312-cp312-macosx_11_0_arm64.whl"
+        sha256 "7b41cd64ee6b54db94bea6274e6e37002ed526aa06c114a8be6f36ffe21c184e"
       end
       on_intel do
-        url "https://files.pythonhosted.org/packages/aa/f8/07bd8c3a23f7a8a6875e6a820bbffe1483a18f18f9398a91b5495123176e/jiter-0.17.0-cp312-cp312-macosx_10_12_x86_64.whl"
-        sha256 "ebf918dfd6a74adc1b9ad71f63c4ab00902fcd3b7fd39f2e24d871db8d713b91"
+        url "https://files.pythonhosted.org/packages/45/0e/075bfa4fa46820da9ac8cf8a67c435b0586012279fba15deccde0e73b9ce/jiter-0.18.0-cp312-cp312-macosx_10_12_x86_64.whl"
+        sha256 "77a01cdf4381a1becbe5b827f682006f47b712581667451c5b1eb259b9ae7041"
       end
     end
     on_linux do
       on_intel do
-        url "https://files.pythonhosted.org/packages/52/f8/b6e513ecbdf3b3cebe587c2279281ecf775b729a58cf4cc7bdf898ded029/jiter-0.17.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
-        sha256 "8c21265b251d99bbb40080d178a8953e35601d3a1564e05c4de4c0d2ca616797"
+        url "https://files.pythonhosted.org/packages/74/6a/b13407f609ddaf9a1f0cdf1336326dc5c8c7fc56943e8450a04a542f5edf/jiter-0.18.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
+        sha256 "b3c741e6b778c951a6861964ee475118812a33208426c54fb92bf4e318bda834"
       end
     end
   end
@@ -223,13 +223,13 @@ class Victor < Formula
   end
 
   resource "multidict" do
-    url "https://files.pythonhosted.org/packages/d0/86/a3de309c5e28ee85b314d0e3ba0e0dea6fd361c313322a05e67be4656e1e/multidict-7.1.0-py3-none-any.whl"
-    sha256 "d9ef29cfd98e17085b4f91bba8fa1570bec6787d5c52ce653ed33a58785585d0"
+    url "https://files.pythonhosted.org/packages/9d/96/1aaad0e5df33f1f5af21775c411349c0234a6edd581ea403bc81919a6eab/multidict-7.2.1-py3-none-any.whl"
+    sha256 "08ea94663d9e7c25d14d78222f7aee906c472d4837766bec62477c38f6e419dc"
   end
 
   resource "openai" do
-    url "https://files.pythonhosted.org/packages/be/e4/83f139714d10d75af2b6891a20c973945dd9b942b11cc407ba4536fb40b9/openai-3.36.1-py3-none-any.whl"
-    sha256 "4c15b6765fe1792c5ad753556f44c7f82c2920c5e9e40219c0fca97369e923d3"
+    url "https://files.pythonhosted.org/packages/1c/d2/b59435562e893730bb620c720ddaaa84b016e870c9b7b6b85fb505540bdc/openai-3.40.0-py3-none-any.whl"
+    sha256 "dfcfd4f65ee5a8bb824da90c9ad7fa0dda7f3bd472a7c564dffc6183f0a0b55c"
   end
 
   resource "opentelemetry-api" do
@@ -404,14 +404,14 @@ class Victor < Formula
   resource "sandhi-gateway" do
     on_macos do
       on_arm do
-        url "https://files.pythonhosted.org/packages/b3/5f/7fcdb7acd2bb2fe300384e2104d18eae3438773593c546c579663b772240/sandhi_gateway-0.14.0-cp311-abi3-macosx_11_0_arm64.whl"
-        sha256 "38901b14404add4a4dd79a4eda4da28495552b64b5c636db1dbbb477560a7f76"
+        url "https://files.pythonhosted.org/packages/cf/9d/63c4f135edfa83f15cae9ad5779709bc8cd648b20f35c7674c1f5a51351f/sandhi_gateway-0.14.1-cp311-abi3-macosx_11_0_arm64.whl"
+        sha256 "35b719785c54032ae57bbc2d4a9099c674e620bfdfd6dbe1cb2a7f96a451d732"
       end
     end
     on_linux do
       on_intel do
-        url "https://files.pythonhosted.org/packages/bf/e1/e43d5b13534a03f289f0bacd9c9b7480b0af95549a5dd6e9c1a002081cdd/sandhi_gateway-0.14.0-cp311-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
-        sha256 "6b7d4e993104f18ae8509d0bf27c1589f0a7229d0b7667aeb1c7ffb6719fc14b"
+        url "https://files.pythonhosted.org/packages/25/01/fd5156c8bc9fa43e96ad27b712469c4c8ed7235eaa070331da5b11276f50/sandhi_gateway-0.14.1-cp311-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
+        sha256 "8f50094738537b6a62f79dab3984834ccd7ce3a1d61a604aa9c7f82a343c421c"
       end
     end
   end
@@ -500,8 +500,8 @@ class Victor < Formula
   end
 
   resource "wcwidth" do
-    url "https://files.pythonhosted.org/packages/bf/12/e10aad98050389ef674c9f69409e38ae086c2104912644e1f9143b394301/wcwidth-0.9.3-py3-none-any.whl"
-    sha256 "e3c9069c54a2da0bf4f6c7e65a735cb1da0f47601a15cb5fef7e4b6ffca4cf60"
+    url "https://files.pythonhosted.org/packages/6f/0c/309b1813b230d1dbbd6f2c2ab2bb21ef68992358977605d9ef289bbfedcc/wcwidth-0.9.4-py3-none-any.whl"
+    sha256 "901eace6d2dd25ebb917d0ce5db18e5c537e1504c905cf32f0d006c12098b05d"
   end
 
   resource "yarl" do
