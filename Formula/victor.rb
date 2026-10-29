@@ -6,8 +6,8 @@ class Victor < Formula
 
   desc "Enterprise-Ready AI Coding Assistant - Any model, any provider"
   homepage "https://github.com/anvai-labs/victor"
-  url "https://files.pythonhosted.org/packages/80/db/e685c2b5a88d17813da612a46cc754939693e9df1af73075f666ffd8d119/victor_ai-0.19.0.tar.gz"
-  sha256 "cd9e5014513aa5b2d0b8e05afebddd607a72b3ed017484edb4e4741094f7605a"
+  url "https://files.pythonhosted.org/packages/96/3a/05306fff313bdeeb572c93c69849eaf0ef7f09830b22145e836db37c014f/victor_ai-0.20.0.tar.gz"
+  sha256 "a70e504eac8782520a1b9c298dc0a199965bb9d5c76cb1467bd565324ce2ebe0"
   license "Apache-2.0"
 
   depends_on "libyaml"
@@ -100,8 +100,8 @@ class Victor < Formula
   end
 
   resource "cachetools" do
-    url "https://files.pythonhosted.org/packages/53/98/c8201d54b354857a3050a52751ca482eb143c404b387ab2c41a0f981b610/cachetools-7.2.6-py3-none-any.whl"
-    sha256 "8722e08fc36ae0838a9a0a2ab9935554720de3343a62dad7aae7c595854c8623"
+    url "https://files.pythonhosted.org/packages/dc/68/211287b89b122a6842b3f078ffecc5a2abd3c0e4362748586f765e2fb3c5/cachetools-7.2.7-py3-none-any.whl"
+    sha256 "88e6b53373a96786d20894fed9ce623ae5b73cbc07421b7a73098db088be69ae"
   end
 
   resource "certifi" do
@@ -228,13 +228,13 @@ class Victor < Formula
   end
 
   resource "openai" do
-    url "https://files.pythonhosted.org/packages/1c/d2/b59435562e893730bb620c720ddaaa84b016e870c9b7b6b85fb505540bdc/openai-3.40.0-py3-none-any.whl"
-    sha256 "dfcfd4f65ee5a8bb824da90c9ad7fa0dda7f3bd472a7c564dffc6183f0a0b55c"
+    url "https://files.pythonhosted.org/packages/83/23/089333ff950ee07c30762160f4eff5ac5d376934c2d6797abf6da9cd06a5/openai-3.41.0-py3-none-any.whl"
+    sha256 "7060a74b239609b21f2919eb98807a8aad463b4f510b8b3b388b15559360b0a8"
   end
 
   resource "opentelemetry-api" do
-    url "https://files.pythonhosted.org/packages/1e/41/f7dcf80b81ee8e71c1a2b59f14208bc723edbd89ed027a73b175abf6348e/opentelemetry_api-1.45.1-py3-none-any.whl"
-    sha256 "b31553efa588ae44bc306f863c785c5333a9ecc091248c6ee68b4b6c87fdedfb"
+    url "https://files.pythonhosted.org/packages/a9/2d/610db864d7513158cebb8f36cc88e67e73bd6c7aa1905ef18d89e1281c81/opentelemetry_api-1.45.2-py3-none-any.whl"
+    sha256 "2cbd737377e710ee740d261c94e93fa0f08e6d037c18f17513cc0a2d94479a34"
   end
 
   resource "orjson" do
@@ -291,32 +291,32 @@ class Victor < Formula
   end
 
   resource "pydantic" do
-    url "https://files.pythonhosted.org/packages/35/ea/a56b9fe5066f3537b7882f77e9c5dfb26d8c2eefdaed9b5fc73d57b4dc22/pydantic-2.14.1-py3-none-any.whl"
-    sha256 "9195d967ec791692a04438115466764fb8b9a27b31f14a760437694f40d6b454"
+    url "https://files.pythonhosted.org/packages/97/01/c71a71258b58659c72504e5fd65b451f6e36e34dc931d0b237ded213c814/pydantic-2.14.2-py3-none-any.whl"
+    sha256 "7efbf7507b937931cd32a5755acb00ea1cf5ccb1d4e8067a5850d5069e382118"
   end
 
   resource "pydantic-core" do
     on_macos do
       on_arm do
-        url "https://files.pythonhosted.org/packages/db/a3/f8b1b39349c33037c73d7a1b794c9c29d8f07d5bd2b74399c1375a529cc6/pydantic_core-2.50.1-cp312-cp312-macosx_11_0_arm64.whl"
-        sha256 "e8e1d6ce820aa23317e8209a86bd65a540973c12dc7552b48a4f6c8e9926815e"
+        url "https://files.pythonhosted.org/packages/f9/0b/92463ae7be78d73885487f72c4599902c2cc190378bccaad5718b7495250/pydantic_core-2.50.2-cp312-cp312-macosx_11_0_arm64.whl"
+        sha256 "596921489390a002d6a5e303384a0f1f98384f8bb550fbf38a1aafa6093da0f9"
       end
       on_intel do
-        url "https://files.pythonhosted.org/packages/ee/94/101b49a6c63f99586755690696eae14532772587d9e39e93f7b8d28a49da/pydantic_core-2.50.1-cp312-cp312-macosx_10_12_x86_64.whl"
-        sha256 "704075d10b74f2f3c6e15407c696d88701df35fc8953f434a431add0d0074db0"
+        url "https://files.pythonhosted.org/packages/d6/65/6609a66cda909d414c58438f9bd70b1e947fe12c25f6bd40c93121afd7ef/pydantic_core-2.50.2-cp312-cp312-macosx_10_12_x86_64.whl"
+        sha256 "e3d824b6152e1c0fd58dc6266f2de470eb7b2286135294f5f7cd26a0f0693738"
       end
     end
     on_linux do
       on_intel do
-        url "https://files.pythonhosted.org/packages/90/24/48cd98388e4ac2c08d0800af36d15413db15e20387f1038123a2c86cb2f6/pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
-        sha256 "93ba4e9d8210d941c200431a56b2c0400b131865947903937ed3ec5404307d2e"
+        url "https://files.pythonhosted.org/packages/08/93/2a6556bbdb8e918175af9d849a5d0b367b5644e41939d040f3a7215b1339/pydantic_core-2.50.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl"
+        sha256 "9667637665acba166a7dbbc786f14c50512d3a01f7199e0e1a13b929e92d7c7a"
       end
     end
   end
 
   resource "pydantic-settings" do
-    url "https://files.pythonhosted.org/packages/3c/74/fdf926afe145d8629c4b2ff57f4ea1d64ed7abc4d84d97463b2517a2547e/pydantic_settings-2.16.1-py3-none-any.whl"
-    sha256 "30f5313340da4e8f1b440d1910b92a5bc3ccbb6b4ba70ec2b8395bc921f418f5"
+    url "https://files.pythonhosted.org/packages/39/88/4131c51ff87b7cd7f82a1194d0c0a2b7ca68c72d9da04c3b7e69ab91a79f/pydantic_settings-2.16.2-py3-none-any.whl"
+    sha256 "8d523e5c129b097686bde019bd6109bff53f4c8c3f63f1ddf9933ffa42e5ab4f"
   end
 
   resource "pygments" do
@@ -495,8 +495,8 @@ class Victor < Formula
   end
 
   resource "victor-contracts" do
-    url "https://files.pythonhosted.org/packages/9b/a3/bdf59ff6650930c29ec83c3722dfaf801a9dc21bf51cd4c844cef5ff19de/victor_contracts-0.10.0-py3-none-any.whl"
-    sha256 "c533fb94c13d35f257d32ed4fe9a3b5507f9d6e3feb385808e14f8b5080bd76c"
+    url "https://files.pythonhosted.org/packages/86/fb/5c3cbe8ee42378d7f7a64c43151ffec4ac0cc280f6417147ea85ab0172c3/victor_contracts-0.11.0-py3-none-any.whl"
+    sha256 "32e1077308370dd9559508782c552156c2cfab29856a27132544d6edd0c340d8"
   end
 
   resource "wcwidth" do
