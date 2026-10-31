@@ -6,8 +6,8 @@ class Victor < Formula
 
   desc "Enterprise-Ready AI Coding Assistant - Any model, any provider"
   homepage "https://github.com/anvai-labs/victor"
-  url "https://files.pythonhosted.org/packages/e6/74/6c0d5789fde0a77bc97ad83b97d3802f255b5d11f1f10c59a50a61f2b468/victor_ai-0.21.0.tar.gz"
-  sha256 "3e224001f0f6c61fd50706e15af83c26354af120bb8f33676aa7ae1b78798f62"
+  url "https://files.pythonhosted.org/packages/8f/b7/457af2f6d0d2519715982ca0479366790cef3c6d9ac03c775f68a51b39b3/victor_ai-0.22.0.tar.gz"
+  sha256 "8edff427b457b6fb262fdb3c20871ed35da9271ebef802af9cb9d0fd738d3637"
   license "Apache-2.0"
 
   depends_on "libyaml"
@@ -228,8 +228,8 @@ class Victor < Formula
   end
 
   resource "openai" do
-    url "https://files.pythonhosted.org/packages/83/23/089333ff950ee07c30762160f4eff5ac5d376934c2d6797abf6da9cd06a5/openai-3.41.0-py3-none-any.whl"
-    sha256 "7060a74b239609b21f2919eb98807a8aad463b4f510b8b3b388b15559360b0a8"
+    url "https://files.pythonhosted.org/packages/c5/79/904afac12186d9ab9e3f731eb798e36dc0f5b991a557c4304b0a43e393c1/openai-3.42.0-py3-none-any.whl"
+    sha256 "efb9d089ecf66c668289f647717389df98b40b954cd86d4fe54eddce39aabb3f"
   end
 
   resource "opentelemetry-api" do
@@ -495,8 +495,8 @@ class Victor < Formula
   end
 
   resource "victor-contracts" do
-    url "https://files.pythonhosted.org/packages/dc/61/a01acf463019568e0d4f1e777593420b8d11a09070a72016b0dfb15473d6/victor_contracts-0.12.0-py3-none-any.whl"
-    sha256 "e2dc467b13ab44dfb15e82a01af6b24fa7fd85ded55e11462441de03a35d3769"
+    url "https://files.pythonhosted.org/packages/36/f2/4246f182b2e05cd53d24b43398c29893a2bc4d68383476e74f70c8bb0ad2/victor_contracts-0.14.0-py3-none-any.whl"
+    sha256 "ab845dd54af74fd69b418786850f75dc539fb0807f389a9ad9029a3f712a65de"
   end
 
   resource "wcwidth" do
