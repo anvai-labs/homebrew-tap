@@ -6,8 +6,8 @@ class Victor < Formula
 
   desc "Enterprise-Ready AI Coding Assistant - Any model, any provider"
   homepage "https://github.com/anvai-labs/victor"
-  url "https://files.pythonhosted.org/packages/f9/82/d19a1bad4c4ae8524e61b5407d23a4256b1765149c788bd5586adadf7d83/victor_ai-0.23.0.tar.gz"
-  sha256 "f99d7d2993cb6eb9bc62f4abf6112695a413cd21eb6c681f19ce9bd01fc2cb62"
+  url "https://files.pythonhosted.org/packages/ef/af/7b1bbe1948e72145c42feca3dfcd890b1b2f52e1dd8375898b617246ad1b/victor_ai-0.24.0.tar.gz"
+  sha256 "144e414838742cd28061474953ed919867cf813fa95478160a0295346b2f790a"
   license "Apache-2.0"
 
   depends_on "libyaml"
@@ -495,8 +495,8 @@ class Victor < Formula
   end
 
   resource "victor-contracts" do
-    url "https://files.pythonhosted.org/packages/85/cd/fef9f3e98466310e2c266d4a0388f4fd74bc51d7ed073338ebe5db81f093/victor_contracts-0.15.0-py3-none-any.whl"
-    sha256 "e3f8e3e71a958aa03237fdeb4a75ac56a6febf0382ac95db40b55787490effcd"
+    url "https://files.pythonhosted.org/packages/63/3c/3bc4d20f2d50824d781a5ab47f213189d0e09a3c5a7057408e794f2b388c/victor_contracts-0.16.0-py3-none-any.whl"
+    sha256 "d0577d80efcf16ea00eb87285fb86ef4c7737f6b4569a0bec5402560a81a8201"
   end
 
   resource "wcwidth" do
