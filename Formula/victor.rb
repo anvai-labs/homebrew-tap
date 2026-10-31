@@ -495,8 +495,8 @@ class Victor < Formula
   end
 
   resource "victor-contracts" do
-    url "https://files.pythonhosted.org/packages/36/f2/4246f182b2e05cd53d24b43398c29893a2bc4d68383476e74f70c8bb0ad2/victor_contracts-0.14.0-py3-none-any.whl"
-    sha256 "ab845dd54af74fd69b418786850f75dc539fb0807f389a9ad9029a3f712a65de"
+    url "https://files.pythonhosted.org/packages/85/cd/fef9f3e98466310e2c266d4a0388f4fd74bc51d7ed073338ebe5db81f093/victor_contracts-0.15.0-py3-none-any.whl"
+    sha256 "e3f8e3e71a958aa03237fdeb4a75ac56a6febf0382ac95db40b55787490effcd"
   end
 
   resource "wcwidth" do
