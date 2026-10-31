@@ -38,7 +38,7 @@ jobs:
           linux="sentinelpass-${ver}-linux.tar.gz"
           zip="sentinelpass-${ver}-macos-arm64.zip"
           curl -fsSL "$base/$mac"   -o "$dir/mac.tgz"
-          curl -fsSL "$base/linux" -o "$dir/linux.tgz"
+          curl -fsSL "$base/$linux" -o "$dir/linux.tgz"
           {
             echo "version=$ver"
             echo "mac_sha=$(sha256sum "$dir/mac.tgz" | cut -d' ' -f1)"
