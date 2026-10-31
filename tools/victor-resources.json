@@ -25,6 +25,7 @@
     "https://files.pythonhosted.org/packages/2e/29/69cfbb602cd91690c55d38ba9fe53e6a7e76a6fa647bf38f19c138d25449/wheel-0.48.0-py3-none-any.whl": "3217dcc807155e45db462d7ef2431f5ddda0d7273b700d05a67b271ceb1287ab",
     "https://files.pythonhosted.org/packages/2e/e2/f4000a4d9c519ca019bf0e2922cc0c6b6db347be6303161382eda7635be7/jiter-0.18.0-cp312-cp312-macosx_11_0_arm64.whl": "7b41cd64ee6b54db94bea6274e6e37002ed526aa06c114a8be6f36ffe21c184e",
     "https://files.pythonhosted.org/packages/32/d1/a3652fe2c19134d0d15922177821d863cbd7e842d53a21bbe7e8e3a1b5ac/certifi-2026.10.23-py3-none-any.whl": "e9b54de76e530bb6cf0ccd036787103acb58fd42ba930ea8bf948ddbaa2f61d1",
+    "https://files.pythonhosted.org/packages/36/f2/4246f182b2e05cd53d24b43398c29893a2bc4d68383476e74f70c8bb0ad2/victor_contracts-0.14.0-py3-none-any.whl": "ab845dd54af74fd69b418786850f75dc539fb0807f389a9ad9029a3f712a65de",
     "https://files.pythonhosted.org/packages/39/88/4131c51ff87b7cd7f82a1194d0c0a2b7ca68c72d9da04c3b7e69ab91a79f/pydantic_settings-2.16.2-py3-none-any.whl": "8d523e5c129b097686bde019bd6109bff53f4c8c3f63f1ddf9933ffa42e5ab4f",
     "https://files.pythonhosted.org/packages/3e/30/e900b21425a860e195f32e37657aa1f7c7f2b1bfb26f03ca209b90933c06/annotated_doc-0.0.5-py3-none-any.whl": "117bac03a25ede5df5440e855b32d556049ca169ead221505badf432fed4b101",
     "https://files.pythonhosted.org/packages/3f/29/eb3558ab6bf252a07ac41c76ac5b0ea24a0aa0c23f87a40aaf31a5f8dba4/anthropic-2.3.0-py3-none-any.whl": "aa6a3984f9276f307933d42dc6f58b6efc821a5ecafbc8d1bb5993a066767622",
@@ -61,7 +62,6 @@
     "https://files.pythonhosted.org/packages/7f/c5/38806a25ab5e65fc178f39affeda20858efafede2fce1ffc2556cfc9fe73/charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl": "3d31298449090ab8d47b7b1b2a555ff73cac7ed438a08b7ac160980c7ebed649",
     "https://files.pythonhosted.org/packages/80/c4/f5af4c1ca8c1eeb2e92ccca14ce8effdeec651d5ab6053c589b074eda6e1/psutil-7.2.2-cp36-abi3-macosx_11_0_arm64.whl": "1a7b04c10f32cc88ab39cbf606e117fd74721c831c98a27dc04578deb0c16979",
     "https://files.pythonhosted.org/packages/82/3b/64d4899d73f91ba49a8c18a8ff3f0ea8f1c1d75481760df8c68ef5235bf5/rich-15.0.0-py3-none-any.whl": "33bd4ef74232fb73fe9279a257718407f169c09b78a87ad3d296f548e27de0bb",
-    "https://files.pythonhosted.org/packages/83/23/089333ff950ee07c30762160f4eff5ac5d376934c2d6797abf6da9cd06a5/openai-3.41.0-py3-none-any.whl": "7060a74b239609b21f2919eb98807a8aad463b4f510b8b3b388b15559360b0a8",
     "https://files.pythonhosted.org/packages/84/48/3fdcde9a0baa84d7d25571223265d6e434e114763b438601d54a8028bf3e/regex-2026.9.29-cp312-cp312-macosx_10_13_universal2.whl": "dc79d36d0618752265f0d575915bdc5c5130ecb9c9f6b3bcefeae32e4bdfafcf",
     "https://files.pythonhosted.org/packages/85/9f/83a07b6ec0e043c050cfdd35fb0cf1b7897b91d554d6eea293740309afe7/propcache-0.5.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl": "2814ecd8e818f487bee4b0f921bc4d1c176cc5fc71ac0f072d0fa67eda4ac14b",
     "https://files.pythonhosted.org/packages/87/ca/565702c44815393e3a973552ad546db4e5ca081ca8698640b4e93d809f51/tree_sitter-0.26.0-cp312-cp312-macosx_10_13_x86_64.whl": "6cb2bd20efb2544c19ac54486ab7cb8ec7b36f913bbe1ce95df84acb96743d9c",
@@ -88,13 +88,13 @@
     "https://files.pythonhosted.org/packages/bc/7b/ca212cbe170ac8b96e45317ecbcf9c3c3ecf0cdec98d5b088a9c4088929b/yarl-1.25.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl": "c6f117789d22dce188e5754e8bc65b7e6ebf8cb73963b9fa761f672a5883769d",
     "https://files.pythonhosted.org/packages/bc/8a/340a1555ae33d7354dbca4faa54948d76d89a27ceef032c8c3bc661d003e/aiofiles-25.1.0-py3-none-any.whl": "abe311e527c862958650f9438e859c1fa7568a141b22abcd015e120e86a85695",
     "https://files.pythonhosted.org/packages/bf/b8/d251589a100250b71a7b8e83fedfcabfd8bd60e78cd1e3329372f63bcc93/wcwidth-0.9.4-cp310-abi3-macosx_10_9_x86_64.whl": "b7969c9aa258d536df54c8ac8af5cad0c74a6268c9972e1fb60a5f29feffb66d",
+    "https://files.pythonhosted.org/packages/c5/79/904afac12186d9ab9e3f731eb798e36dc0f5b991a557c4304b0a43e393c1/openai-3.42.0-py3-none-any.whl": "efb9d089ecf66c668289f647717389df98b40b954cd86d4fe54eddce39aabb3f",
     "https://files.pythonhosted.org/packages/cf/9d/63c4f135edfa83f15cae9ad5779709bc8cd648b20f35c7674c1f5a51351f/sandhi_gateway-0.14.1-cp311-abi3-macosx_11_0_arm64.whl": "35b719785c54032ae57bbc2d4a9099c674e620bfdfd6dbe1cb2a7f96a451d732",
     "https://files.pythonhosted.org/packages/d1/33/422b98d2195232ca1826284a76852ad5a86fe23e31b009c9886b2d0fb8b2/pyyaml-6.0.3-cp312-cp312-macosx_10_13_x86_64.whl": "7f047e29dcae44602496db43be01ad42fc6f1cc0d8cd6c83d342306c32270196",
     "https://files.pythonhosted.org/packages/d5/94/6ba86efddcb616c811b40e6a0dfdd862738f647e4e3860a961075d5e9ed8/aiohttp-3.14.5-cp312-cp312-macosx_10_13_universal2.whl": "df37b620684e19b5e25724412518ccafc3b1a49cdac706fdbd2f983fad943450",
     "https://files.pythonhosted.org/packages/d6/65/6609a66cda909d414c58438f9bd70b1e947fe12c25f6bd40c93121afd7ef/pydantic_core-2.50.2-cp312-cp312-macosx_10_12_x86_64.whl": "e3d824b6152e1c0fd58dc6266f2de470eb7b2286135294f5f7cd26a0f0693738",
     "https://files.pythonhosted.org/packages/da/e4/aa172eb534b7f02f1f8ff1c3213347eaf3cf218db91a727c6863c22f1035/aiohttp-3.14.5-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl": "20f085697d7e911f1f73c43ed03fafbed1e7121797e2eb5428efa80398060584",
     "https://files.pythonhosted.org/packages/db/36/aa413bc214dc4f785ad2b2ddd8cc99aae7062d49ab155e91e6011af00daf/lxml-6.1.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": "379f8a75cf6eb7eef0af074b55f49ab73b868388a98de14646abcdfa4564bb11",
-    "https://files.pythonhosted.org/packages/dc/61/a01acf463019568e0d4f1e777593420b8d11a09070a72016b0dfb15473d6/victor_contracts-0.12.0-py3-none-any.whl": "e2dc467b13ab44dfb15e82a01af6b24fa7fd85ded55e11462441de03a35d3769",
     "https://files.pythonhosted.org/packages/dc/68/211287b89b122a6842b3f078ffecc5a2abd3c0e4362748586f765e2fb3c5/cachetools-7.2.7-py3-none-any.whl": "88e6b53373a96786d20894fed9ce623ae5b73cbc07421b7a73098db088be69ae",
     "https://files.pythonhosted.org/packages/dd/1f/a180b57d9eeabaab77f9d5aa30356898ea749c4795596a8f66d1eb6bef2e/lxml-6.1.3-cp312-cp312-macosx_10_13_universal2.whl": "0c0710ac085a157b593c38fbcacd950f15c4afa8e2057527185875ab302752bc",
     "https://files.pythonhosted.org/packages/e0/f9/0595336914c5619e5f28a1fb793285925a8cd4b432c9da0a987836c7f822/shellingham-1.5.4-py2.py3-none-any.whl": "7ecfff8f2fd72616f7481040475a65b2bf8af90a56c89140852d1120324e8686",
@@ -245,8 +245,8 @@
     "version": "7.2.1"
   },
   "openai": {
-    "pure": "openai-3.41.0-py3-none-any.whl",
-    "version": "3.41.0"
+    "pure": "openai-3.42.0-py3-none-any.whl",
+    "version": "3.42.0"
   },
   "opentelemetry-api": {
     "pure": "opentelemetry_api-1.45.2-py3-none-any.whl",
@@ -375,8 +375,8 @@
     "version": "2.8.0"
   },
   "victor-contracts": {
-    "pure": "victor_contracts-0.12.0-py3-none-any.whl",
-    "version": "0.12.0"
+    "pure": "victor_contracts-0.14.0-py3-none-any.whl",
+    "version": "0.14.0"
   },
   "wcwidth": {
     "linux_x64": "wcwidth-0.9.4-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
