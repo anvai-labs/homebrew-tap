@@ -5,8 +5,10 @@ class Agentbrowser < Formula
   desc "Agent-native browser service for AI agents (server + CLI + MCP server)"
   homepage "https://github.com/anvai-labs/agentbrowser"
   license "Apache-2.0"
-  # Same 1.27.3 bottles; formula-only change (policy-file service wiring).
-  revision 1
+  # Same bottles as the tagged version; formula-only change (bind knob: the
+  # service stanza no longer pins HOST/PORT, so brew's native user override
+  # file can change the bind — see caveats).
+  revision 2
 
   # Prebuilt release artifacts: the agentbrowser-mcp executable (raw
   # per-target binaries) and, since v1.6.1, the API server as per-target
@@ -189,12 +191,15 @@ class Agentbrowser < Formula
 
   service do
     run [opt_bin/"agentbrowser-server"]
-    environment_variables "HOST" => "127.0.0.1",
-                          "PORT" => "5709",
-                          # Policy-bearing env (MAX_RESPONSE_BYTES etc.) is deprecated and
-                          # cannot combine with a policy file; the document under etc is
-                          # the one durable home for policy configuration.
-                          "AGENTBROWSER_POLICY_FILE" => "#{etc}/agentbrowser/policy.json"
+    # HOST/PORT are deliberately NOT pinned here. The server defaults to
+    # 127.0.0.1:5709 itself, and pinning them in the generated plist meant
+    # brew's native user override (~/.homebrew/services/agentbrowser.env)
+    # could never change the bind — the documented knob for exposing the
+    # service. See caveats.
+    # Policy-bearing env (MAX_RESPONSE_BYTES etc.) is deprecated and
+    # cannot combine with a policy file; the document under etc is
+    # the one durable home for policy configuration.
+    environment_variables "AGENTBROWSER_POLICY_FILE" => "#{etc}/agentbrowser/policy.json"
     keep_alive true
     log_path var/"log/agentbrowser-server.log"
     error_log_path var/"log/agentbrowser-server.err.log"
@@ -227,8 +232,23 @@ class Agentbrowser < Formula
 
       The clients drive the service (default http://localhost:5709;
       CLI override: --base-url; MCP override: AGENTBROWSER_BASE_URL),
-      authenticate with AGENTBROWSER_API_KEY — set keys via the service's
-      AGENTBROWSER_API_KEYS env in a launchd override if you expose it.
+      authenticate with AGENTBROWSER_API_KEY (keys configured as below).
+
+      Binding: the service listens on 127.0.0.1:5709 by default. To expose
+      it on all interfaces — never by editing the plist, which brew services
+      regenerates from this formula on every start — add ONE line to brew's
+      native override file and restart:
+
+        printf 'HOST=0.0.0.0\n' >> ~/.homebrew/services/agentbrowser.env
+        brew services restart anvai-labs/tap/agentbrowser
+
+      (unquoted value: brew's parser does not strip quotes). The server
+      (1.34.0+) refuses an unauthenticated bind beyond loopback, so configure
+      AGENTBROWSER_API_KEYS first — in #{etc}/agentbrowser/env (the wrapper
+      applies it last, so it WINS) or in that same override file. For keyless
+      remote access keep loopback and tunnel instead:
+
+        ssh -N -L 5709:127.0.0.1:5709 <user>@<this-host>
 
       Durable configuration lives under #{etc}/agentbrowser/ (brew never
       rewrites these on upgrade, unlike the launchd plist it regenerates):
