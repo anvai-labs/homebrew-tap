@@ -44,6 +44,29 @@ class VictorFormulaTests(unittest.TestCase):
         self.assertIn("setuptools-", text)
         self.assertIn("wheel-", text)
 
+    def test_only_the_head_url_is_the_victor_sdist(self):
+        urls = re.findall(r'^\s*url\s+"([^"]+)"', FORMULA.read_text(encoding="utf-8"), re.MULTILINE)
+        sdists = [url for url in urls if "/victor_ai-" in url]
+        self.assertEqual(sdists, [urls[0]], "a resource url was rewritten to the victor-ai sdist")
+
+    def test_closure_matches_victor_exact_pins(self):
+        version = re.search(r"victor_ai-([^/]+)\.tar\.gz", formula_field("url")).group(1)
+        with urllib.request.urlopen(f"https://pypi.org/pypi/victor-ai/{version}/json", timeout=20) as response:
+            requires = json.load(response)["info"]["requires_dist"] or []
+        text = FORMULA.read_text(encoding="utf-8")
+        pins = []
+        for req in requires:
+            if "extra ==" in req:
+                continue
+            match = re.match(r"^([A-Za-z0-9_.-]+)\s*==\s*([^;,\s]+)", req)
+            if match:
+                pins.append((re.sub(r"[-_.]+", "_", match.group(1)).lower(), match.group(2)))
+        self.assertTrue(pins, "victor-ai declares no exact pins; test is vacuous")
+        for name, pinned in pins:
+            found = re.findall(rf"/{name}-([^-/]+)-", text, re.IGNORECASE)
+            self.assertTrue(found, f"{name}=={pinned} has no vendored resource")
+            self.assertEqual(set(found), {pinned}, f"{name} vendored {sorted(set(found))}, victor pins {pinned}")
+
     def test_formula_installs_victor_sdist_without_build_isolation(self):
         text = FORMULA.read_text(encoding="utf-8")
 

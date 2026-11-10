@@ -59,8 +59,10 @@ jobs:
           path = Path("Formula/victor.rb")
           text = path.read_text(encoding="utf-8")
           text = re.sub(r'^  homepage ".*"$', '  homepage "https://github.com/anvai-labs/victor"', text, flags=re.MULTILINE)
-          text = re.sub(r'^  url ".*"$', f'  url "{os.environ["SDIST_URL"]}"', text, flags=re.MULTILINE)
-          text = re.sub(r'^  sha256 ".*"$', f'  sha256 "{os.environ["SDIST_SHA256"]}"', text, flags=re.MULTILINE)
+          # count=1: resource stanzas sit at column 0, so their url/sha256 lines are
+          # also two-space indented; only the first pair is victor-ai's sdist.
+          text = re.sub(r'^  url ".*"$', f'  url "{os.environ["SDIST_URL"]}"', text, count=1, flags=re.MULTILINE)
+          text = re.sub(r'^  sha256 ".*"$', f'  sha256 "{os.environ["SDIST_SHA256"]}"', text, count=1, flags=re.MULTILINE)
           path.write_text(text, encoding="utf-8")
           PY
 
