@@ -6,8 +6,8 @@ class Victor < Formula
 
   desc "Enterprise-Ready AI Coding Assistant - Any model, any provider"
   homepage "https://github.com/anvai-labs/victor"
-  url "https://files.pythonhosted.org/packages/b2/25/d89ca8b417cab8ec948f6d0c7c8ec87c8c8d805e1b0dacefeec0512370f4/victor_ai-0.26.2.tar.gz"
-  sha256 "f30c5b4e3f1f1d0b6bce14f5a4acc18403f675147312d6fb564be4120fd4c3df"
+  url "https://files.pythonhosted.org/packages/e2/db/b9c495b5a9c5fb79e255f0426542ed543c3f85d09d75f8fb6d834dc2d78c/victor_ai-0.27.0.tar.gz"
+  sha256 "15d76dd121be89c279c8f9c80c1eaeb269df14761f0029db0fcad25b0f4c64db"
   license "Apache-2.0"
 
   depends_on "libyaml"
@@ -38,6 +38,7 @@ class Victor < Formula
   # headerpad, so brew's keg dylib-ID rewrite fails on them; @rpath names are
   # already relocatable, so leave them be.
   preserve_rpath
+
 
 resource "setuptools" do
   url "https://files.pythonhosted.org/packages/95/9c/c510029fc6ef33a6275cd2c5d3cecd6613dfd6aa401d57c54f1c18852ccf/setuptools-84.0.0-py3-none-any.whl"
@@ -80,8 +81,8 @@ resource "annotated-types" do
 end
 
 resource "anthropic" do
-  url "https://files.pythonhosted.org/packages/38/0b/705a05ab68558914e725cf1143d7e409fa3bb596c35bca1eceab42402abe/anthropic-2.6.0-py3-none-any.whl"
-  sha256 "4325cdf9346fa29183674b6ee6289ebad5b2b0a935758f7350fa504032da1d9b"
+  url "https://files.pythonhosted.org/packages/8a/da/ed144ab553eb2bc7b5febbfb37858f28b33ec332c37f0fdf260012ae3fe2/anthropic-2.7.0-py3-none-any.whl"
+  sha256 "cafb1817435d095ef46551e9b0608f56c6490728406a73f2ea8664bc805e4352"
 end
 
 resource "anyio" do
@@ -100,8 +101,8 @@ resource "beautifulsoup4" do
 end
 
 resource "cachetools" do
-  url "https://files.pythonhosted.org/packages/29/aa/e54a49d0927b2fa7b86bc94dbde57125e38e8cfca7a31b6764e8dbf35e9f/cachetools-7.3.0-py3-none-any.whl"
-  sha256 "2105787c94619bde7072624fec0fe7b8a08bb7bf6c757c318f8925573c6f07c9"
+  url "https://files.pythonhosted.org/packages/a6/bc/2e35dcb4bfb37a5dd98b8b323158d3103cf263f87164ed03702f6fc5483f/cachetools-8.0.0-py3-none-any.whl"
+  sha256 "5af562e5078f0086771a1e3832a9c3dbf5d336b6e2794a2c12a64680a4c9087d"
 end
 
 resource "certifi" do
@@ -115,8 +116,8 @@ resource "charset-normalizer" do
 end
 
 resource "click" do
-  url "https://files.pythonhosted.org/packages/58/50/6c0d534c5f134586a8e1ba4e330569e32f057e33372ae556463212fb4cd3/click-8.5.0-py3-none-any.whl"
-  sha256 "255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360"
+  url "https://files.pythonhosted.org/packages/31/7d/164b7ffc8624fe9efb4221bf9af485d5c1e41b9ae118045d2b6dc5457d8b/click-8.5.1-py3-none-any.whl"
+  sha256 "8bb5376d2006950386f8c6427613334a2acadc5f559cb80e638d00b4df957e37"
 end
 
 resource "cvss" do
@@ -167,18 +168,18 @@ end
 resource "jiter" do
   on_macos do
     on_arm do
-      url "https://files.pythonhosted.org/packages/2e/e2/f4000a4d9c519ca019bf0e2922cc0c6b6db347be6303161382eda7635be7/jiter-0.18.0-cp312-cp312-macosx_11_0_arm64.whl"
-      sha256 "7b41cd64ee6b54db94bea6274e6e37002ed526aa06c114a8be6f36ffe21c184e"
+      url "https://files.pythonhosted.org/packages/86/56/371651ed5fdbab064b9ca39f5ceddd1bad2175bc1d4c81915eb63ac1fa3d/jiter-0.19.0-cp312-cp312-macosx_11_0_arm64.whl"
+      sha256 "730b0387fbea21b71b86b6975e20da7a364b04c4428eba0d15e6f0a7b20aa59b"
     end
     on_intel do
-      url "https://files.pythonhosted.org/packages/45/0e/075bfa4fa46820da9ac8cf8a67c435b0586012279fba15deccde0e73b9ce/jiter-0.18.0-cp312-cp312-macosx_10_12_x86_64.whl"
-      sha256 "77a01cdf4381a1becbe5b827f682006f47b712581667451c5b1eb259b9ae7041"
+      url "https://files.pythonhosted.org/packages/8c/cd/88cf9efec4d4b6cb816233a6fbfcd842e9675012b2827c6abee4f87e53f1/jiter-0.19.0-cp312-cp312-macosx_10_12_x86_64.whl"
+      sha256 "0282eae10bbccfabcb6001ced6a20abc5e05e26c6316e7729c8fc1510bd3b8e1"
     end
   end
   on_linux do
     on_intel do
-      url "https://files.pythonhosted.org/packages/74/6a/b13407f609ddaf9a1f0cdf1336326dc5c8c7fc56943e8450a04a542f5edf/jiter-0.18.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
-      sha256 "b3c741e6b778c951a6861964ee475118812a33208426c54fb92bf4e318bda834"
+      url "https://files.pythonhosted.org/packages/8c/41/22f74631763c50a6ec76fec1e6a9557ffba181fe5048135520284a5746f3/jiter-0.19.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl"
+      sha256 "0956b5f58b804221dfb929c120e6d4032138fed20c1cc0ef683a2d1326255e46"
     end
   end
 end
@@ -228,8 +229,8 @@ resource "multidict" do
 end
 
 resource "openai" do
-  url "https://files.pythonhosted.org/packages/f4/63/454e6faad68ac903e7669932db8d0a91c95dfca829ec9476e52045b17684/openai-3.46.0-py3-none-any.whl"
-  sha256 "7b650117e9bf539029bf880c2eff94a26f281394f6572284efa5d068d4b1c98e"
+  url "https://files.pythonhosted.org/packages/fe/45/de8fbd25a1ca0a46f9641604a7cb991123daa7f292c27625223d685d9bac/openai-3.49.0-py3-none-any.whl"
+  sha256 "3977754792115027ba80ae16996ba3366478b5b228e1ab58e2660bd7ac8c3d78"
 end
 
 resource "opentelemetry-api" do
@@ -356,18 +357,18 @@ end
 resource "regex" do
   on_macos do
     on_arm do
-      url "https://files.pythonhosted.org/packages/84/48/3fdcde9a0baa84d7d25571223265d6e434e114763b438601d54a8028bf3e/regex-2026.9.29-cp312-cp312-macosx_10_13_universal2.whl"
-      sha256 "dc79d36d0618752265f0d575915bdc5c5130ecb9c9f6b3bcefeae32e4bdfafcf"
+      url "https://files.pythonhosted.org/packages/1b/81/f9c9857e531301761b612129ca24fc2d6a9f83c5d804510f0a86d97a0ce6/regex-2026.11.9-cp312-cp312-macosx_10_13_universal2.whl"
+      sha256 "9538d0bc19f87d273c2a5397a08fcd2646d02ace31ba7974483d997e36654dcf"
     end
     on_intel do
-      url "https://files.pythonhosted.org/packages/84/48/3fdcde9a0baa84d7d25571223265d6e434e114763b438601d54a8028bf3e/regex-2026.9.29-cp312-cp312-macosx_10_13_universal2.whl"
-      sha256 "dc79d36d0618752265f0d575915bdc5c5130ecb9c9f6b3bcefeae32e4bdfafcf"
+      url "https://files.pythonhosted.org/packages/1b/81/f9c9857e531301761b612129ca24fc2d6a9f83c5d804510f0a86d97a0ce6/regex-2026.11.9-cp312-cp312-macosx_10_13_universal2.whl"
+      sha256 "9538d0bc19f87d273c2a5397a08fcd2646d02ace31ba7974483d997e36654dcf"
     end
   end
   on_linux do
     on_intel do
-      url "https://files.pythonhosted.org/packages/26/83/d2fbd2e4e3afb1167daa825187d196f313cbaa1a4768f311fb041bb0e3d2/regex-2026.9.29-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl"
-      sha256 "39ab5894d971f9ac68baa6eca5c50387db579cfcacf36ae8df3feceb1815e6d0"
+      url "https://files.pythonhosted.org/packages/46/c2/59c5b6cf4b762d80de04cf60f2d0deba1da2f4172a91c41eaee8933080a8/regex-2026.11.9-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl"
+      sha256 "ab4a0c5cd3df4b93841ba4a419a5438b2a4c78a4e418682fc674e3f50d56b857"
     end
   end
 end
@@ -404,14 +405,14 @@ end
 resource "sandhi-gateway" do
   on_macos do
     on_arm do
-      url "https://files.pythonhosted.org/packages/cf/9d/63c4f135edfa83f15cae9ad5779709bc8cd648b20f35c7674c1f5a51351f/sandhi_gateway-0.14.1-cp311-abi3-macosx_11_0_arm64.whl"
-      sha256 "35b719785c54032ae57bbc2d4a9099c674e620bfdfd6dbe1cb2a7f96a451d732"
+      url "https://files.pythonhosted.org/packages/9b/e6/440f3ee59b4f53817e71907402b29dac0110fea24960a3bf2167469090e1/sandhi_gateway-0.16.2-cp311-abi3-macosx_11_0_arm64.whl"
+      sha256 "5314f7e87d3009f1b03d72e7410e65b0951052c5a134f26cdf9983bc02ea1dd3"
     end
   end
   on_linux do
     on_intel do
-      url "https://files.pythonhosted.org/packages/25/01/fd5156c8bc9fa43e96ad27b712469c4c8ed7235eaa070331da5b11276f50/sandhi_gateway-0.14.1-cp311-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
-      sha256 "8f50094738537b6a62f79dab3984834ccd7ce3a1d61a604aa9c7f82a343c421c"
+      url "https://files.pythonhosted.org/packages/32/76/5644cc84e7c18b64cc0629c8d2e8bd9ca9132fc6e3d12b9e140b00aab7f2/sandhi_gateway-0.16.2-cp311-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl"
+      sha256 "eb6a5c5abc41d88f2386036cbe7850f047094d74d2675e1f87e1cc24bdef2b7b"
     end
   end
 end
@@ -427,8 +428,8 @@ resource "sniffio" do
 end
 
 resource "soupsieve" do
-  url "https://files.pythonhosted.org/packages/2c/5c/4f68370847b561a389dd9a2d7eb3d19fd8cbb8acbae543a0c6b8d0d9700b/soupsieve-4.0.1-py3-none-any.whl"
-  sha256 "2e68cf7dd5a0f29d81f9d485275ccf294e6475f615e211895d91cb81f8614f04"
+  url "https://files.pythonhosted.org/packages/88/73/6a2087c72975cfc07394623bca8d17654342ea4055ae368deafe5a81a542/soupsieve-4.1-py3-none-any.whl"
+  sha256 "e4d667b3974ce6e038e7390486b8093369854a1d345ffdd4c121dfc4a782e809"
 end
 
 resource "tiktoken" do
@@ -453,18 +454,18 @@ end
 resource "tree-sitter" do
   on_macos do
     on_arm do
-      url "https://files.pythonhosted.org/packages/54/6f/8bb61957f16ec1b1d92410a006cdc84a952b6352a7313b2ad299f2d21484/tree_sitter-0.26.0-cp312-cp312-macosx_11_0_arm64.whl"
-      sha256 "918d89529786873f0982a0f59c2a303cd065fbfd1b903d71a8e4e1584f67b42e"
+      url "https://files.pythonhosted.org/packages/a6/cd/da10e28e5305b5900d1bc503ac78214efca97fa5bc09b86cf466125a1bde/tree_sitter-0.26.1-cp312-cp312-macosx_11_0_arm64.whl"
+      sha256 "8ac2d0d115e73be14dbd569b353a4f762368c134a64248aa4483afdc297dd4b4"
     end
     on_intel do
-      url "https://files.pythonhosted.org/packages/87/ca/565702c44815393e3a973552ad546db4e5ca081ca8698640b4e93d809f51/tree_sitter-0.26.0-cp312-cp312-macosx_10_13_x86_64.whl"
-      sha256 "6cb2bd20efb2544c19ac54486ab7cb8ec7b36f913bbe1ce95df84acb96743d9c"
+      url "https://files.pythonhosted.org/packages/65/7d/67970014769483318f7ea91cae46a8dd68168c69f7407f4eb61b0213891a/tree_sitter-0.26.1-cp312-cp312-macosx_10_13_x86_64.whl"
+      sha256 "c413bfec1dbee3fc17b967537d26da1429c07a593da251a71843f5e34c8ea0ff"
     end
   end
   on_linux do
     on_intel do
-      url "https://files.pythonhosted.org/packages/8a/2f/6e6781b31677231366cb3cf27bc8269157f6d4b03c9032865a4f5f2bbe7e/tree_sitter-0.26.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl"
-      sha256 "5a6b333b0282d8bb0af741f9b018bd2523d4eecb2686bf6717066a625fecfaa4"
+      url "https://files.pythonhosted.org/packages/9a/d9/238f956bff9be77ad43b7efe5b03fdc0c5ccef41b1018888c420d7eb604b/tree_sitter-0.26.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl"
+      sha256 "7b14ac81a2afdcf75610f714f1d2eeaac40da93965c104cabb5c4c2b536a488a"
     end
   end
 end
