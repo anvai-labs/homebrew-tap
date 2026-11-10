@@ -5,10 +5,10 @@ class Agentbrowser < Formula
   desc "Agent-native browser service for AI agents (server + CLI + MCP server)"
   homepage "https://github.com/anvai-labs/agentbrowser"
   license "Apache-2.0"
-  # Same bottles as the tagged version; formula-only change (bind knob: the
-  # service stanza no longer pins HOST/PORT, so brew's native user override
-  # file can change the bind — see caveats).
-  revision 2
+  # Same bottles as the tagged version; formula-only change (service-env
+  # override file: the wrapper now merges ~/.config/agentbrowser/service.env
+  # into the service environment at every start — see caveats).
+  revision 3
 
   # Prebuilt release artifacts: the agentbrowser-mcp executable (raw
   # per-target binaries) and, since v1.6.1, the API server as per-target
@@ -108,10 +108,11 @@ class Agentbrowser < Formula
 
     # Service wrapper: keeps the Playwright browser cache under var,
     # bootstraps Chromium on first run (headless shell + browser, ~100 MB),
-    # and sources the deployment env file under etc before exec. etc/
-    # survives upgrades and brew never rewrites it, so per-install secrets
-    # (API keys, operator-key path) placed there outlive the launchd plist,
-    # which brew services regenerates from this formula on every start.
+    # merges the operator service-env override file, and sources the
+    # deployment env file under etc before exec. Both files are read at
+    # EVERY start (the wrapper is the service run command), so edits apply
+    # on `brew services restart` — hand-editing the generated launchd plist
+    # is never required, and brew never rewrites etc/ or the override file.
     node_bin = formula_opt_bin("node@24")/"node"
     (bin/"agentbrowser-server").write <<~EOS
       #!/bin/bash
@@ -120,6 +121,29 @@ class Agentbrowser < Formula
         echo "agentbrowser-server: bootstrapping Chromium (one-time download)..." >&2
         PW_CLI="$(echo #{libexec}/node_modules/.pnpm/playwright@*/node_modules/playwright/cli.js)"
         "#{node_bin}" "$PW_CLI" install chromium 1>&2
+      fi
+      # Operator service-env override (ADR-034): simple KEY=VALUE lines,
+      # parsed without shell sourcing. Owner-only perms are required; a
+      # group/world-readable file is refused loudly and skipped (the plist
+      # environment stays the base). Absent file: fail-open, no change.
+      SERVICE_ENV_FILE="${HOME}/.config/agentbrowser/service.env"
+      if [ -f "$SERVICE_ENV_FILE" ]; then
+        perms="$(stat -c '%a' "$SERVICE_ENV_FILE" 2>/dev/null || stat -f '%Lp' "$SERVICE_ENV_FILE" 2>/dev/null)"
+        if [ "$perms" = "600" ] || [ "$perms" = "400" ]; then
+          while IFS= read -r line || [ -n "$line" ]; do
+            line="${line%$'\\r'}"
+            case "$line" in ""|"#"*) continue ;; esac
+            key="${line%%=*}"
+            [ "$key" = "$line" ] && continue
+            key="${key#"${key%%[![:space:]]*}"}"; key="${key%"${key##*[![:space:]]}"}"
+            case "$key" in ""|*[!A-Za-z0-9_]*|[0-9]*) continue ;; esac
+            value="${line#*=}"
+            value="${value#"${value%%[![:space:]]*}"}"; value="${value%"${value##*[![:space:]]}"}"
+            export "$key=$value"
+          done < "$SERVICE_ENV_FILE"
+        else
+          echo "agentbrowser-server: REFUSING $SERVICE_ENV_FILE — mode $perms is not owner-only; chmod 600 it (or remove it). The service keeps its base environment." >&2
+        fi
       fi
       ENV_FILE="#{etc}/agentbrowser/env"
       if [ -f "$ENV_FILE" ]; then
@@ -245,10 +269,34 @@ class Agentbrowser < Formula
       (unquoted value: brew's parser does not strip quotes). The server
       (1.34.0+) refuses an unauthenticated bind beyond loopback, so configure
       AGENTBROWSER_API_KEYS first — in #{etc}/agentbrowser/env (the wrapper
-      applies it last, so it WINS) or in that same override file. For keyless
+      applies it last, so it WINS) or in the override file below. For keyless
       remote access keep loopback and tunnel instead:
 
         ssh -N -L 5709:127.0.0.1:5709 <user>@<this-host>
+
+      Service environment overrides (ADR-034): the wrapper merges
+      ~/.config/agentbrowser/service.env into the service environment at
+      every START (not at install), so edits apply on
+      `brew services restart` and survive plist regeneration — hand-editing
+      the generated plist is never the way. The file holds simple KEY=VALUE
+      lines (one per line; no "export", no shell sourcing; quotes are NOT
+      stripped; blank lines and #-comments are ignored), e.g. the operator
+      Chrome attachment pair:
+
+        mkdir -p ~/.config/agentbrowser
+        printf 'AGENTBROWSER_CDP_ENDPOINT=http://127.0.0.1:9222\n' >> ~/.config/agentbrowser/service.env
+        printf 'AGENTBROWSER_CDP_ALLOW_UNENFORCED_EGRESS=true\n' >> ~/.config/agentbrowser/service.env
+        printf 'AGENTBROWSER_CDP_PROFILE_HINT=<profile-basename>\n' >> ~/.config/agentbrowser/service.env
+        chmod 600 ~/.config/agentbrowser/service.env
+        brew services restart anvai-labs/tap/agentbrowser
+
+      The file must be owner-only (chmod 600 or 400): a group/world-readable
+      file is REFUSED with a loud line in the service error log and skipped
+      (the plist environment stays the base). No file: no change. Keys must
+      be valid shell names; anything else on the line is skipped. These
+      values override the plist's environment and brew's native
+      ~/.homebrew/services/agentbrowser.env override; #{etc}/agentbrowser/env
+      is still applied last and wins over this file.
 
       Durable configuration lives under #{etc}/agentbrowser/ (brew never
       rewrites these on upgrade, unlike the launchd plist it regenerates):
