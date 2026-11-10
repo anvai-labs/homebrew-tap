@@ -73,7 +73,13 @@ class AgentbrowserServiceEnvTests(unittest.TestCase):
         self.assertIn("survive plist regeneration", caveats)
 
     def test_formula_revision_bumped_for_wrapper_change(self):
+        # The wrapper change rides the 1.35.1 formula as a formula-only
+        # edit, so the revision counter must move again (main carried
+        # revision 2 for the bind knob).
         text = FORMULA.read_text(encoding="utf-8")
+        self.assertIn("releases/download/v1.35.1/", text)
+        self.assertNotIn("releases/download/v1.34.0/", text)
+        self.assertNotIn("releases/download/v1.35.0/", text)
         match = re.search(r'^\s*revision\s+(\d+)', text, re.MULTILINE)
         self.assertIsNotNone(match, "formula-only wrapper change requires a revision bump")
         self.assertGreaterEqual(int(match.group(1)), 3)
