@@ -1,8 +1,8 @@
 class Proximadb < Formula
   desc "Vector, document, and graph database server"
   homepage "https://github.com/anvai-labs/proximaDB"
-  url "https://github.com/anvai-labs/proximaDB/releases/download/v0.6.1/proximadb-0.6.1-x86_64-unknown-linux-gnu.tar.gz"
-  sha256 "807d9d6b084df2a3e92b83a5344f2c9a9cc807bea0dc051004bb298d4a048b5c"
+  url "https://github.com/anvai-labs/proximaDB/releases/download/v0.7.0/proximadb-0.7.0-x86_64-unknown-linux-gnu.tar.gz"
+  sha256 "dfcaf8629adc250991720dc6256f3fddff614fa990c27c3c10634463312df2b1"
   license "Apache-2.0"
 
   livecheck do
