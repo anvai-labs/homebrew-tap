@@ -2,13 +2,13 @@ cask "sentinelpass" do
   # The version stanza is the single source of truth for bumps: the URL is
   # fully version-templated (cask audit requires a versioned URL), so the
   # bump bot rewrites only this stanza and the arm checksum below.
-  version "0.19.1"
+  version "0.20.0"
   # Arm64-only upstream; the zip asset name is arch-suffixed (the cask used
   # the arch-generic DMG through 0.17.0 and migrated to the zip with 0.18.0,
   # the first release shipping it — upstream #175). The sum is recomputed
   # from the actually downloaded zip and cross-checked against the release's
   # sha256sums.txt on every bump.
-  sha256 arm: "e5e331e062500ce6e7e5b1804e9f924975d0dd00dfc406bc4a4f169bc13549e8"
+  sha256 arm: "33440c300c25ea28bc5dd982a4f82c4e4617823eb6c25e6b7b893c994fa2ba6b"
 
   url "https://github.com/anvai-labs/sentinelpass/releases/download/v#{version}/sentinelpass-#{version}-macos-arm64.zip"
   name "SentinelPass"
