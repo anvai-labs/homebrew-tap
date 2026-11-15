@@ -90,6 +90,12 @@ Sandhi 0.9.1 defaults to OIDC SSO. Before starting the service, create a private
 [OIDC setup guide](https://github.com/anvai-labs/sandhi/blob/main/docs/operator/oidc-sso.md).
 Missing configuration or failed identity-provider discovery prevents startup.
 The upgrade does not copy credentials or migrate an existing gateway's database.
+Since sandhi 0.18.0 authenticated listeners require TLS; the brew service uses
+the explicit loopback-only HTTP exception (`SANDHI_ALLOW_LOOPBACK_HTTP=1` on
+`127.0.0.1:8787`) — LAN/wildcard plaintext is refused regardless, and serving
+beyond the same host needs listener TLS via `SANDHI_CONFIG` (`tls.cert`/
+`tls.key`; see the
+[sandhi operator docs](https://github.com/anvai-labs/sandhi/blob/main/docs/operator/proxy-guide.adoc)).
 
 ```bash
 brew services start anvai-labs/tap/sandhi
