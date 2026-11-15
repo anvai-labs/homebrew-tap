@@ -27,7 +27,7 @@ URL is spelled out so the source is never ambiguous.)
 |---|---|---|---|
 | `sandhi` | `sandhi-proxy` (AI usage gateway server) + `sandhi` (operator CLI) | macOS arm64, Linux x86_64 | [anvai-labs/sandhi](https://github.com/anvai-labs/sandhi) |
 | `sentinelpass` | `sentinelpass` + `sentinelpass-host` + `sentinelpass-ui` (+ `-daemon` on Linux) | macOS arm64, Linux x86_64 | [anvai-labs/sentinelpass](https://github.com/anvai-labs/sentinelpass) |
-| `victor` | `victor` (AI coding assistant; PyPI virtualenv) | macOS + Linux | [anvai-labs/victor](https://github.com/anvai-labs/victor) |
+| `victor` | `victor` (AI coding assistant; PyPI virtualenv) | macOS arm64, Linux x86_64 | [anvai-labs/victor](https://github.com/anvai-labs/victor) |
 | `agentbrowser` | `agentbrowser`, `agentbrowser-server`, `agentbrowser-mcp` (agent-native browser service: CLI, service daemon, MCP server) | macOS arm64, macOS x64, Linux x86_64, Linux arm64 | [anvai-labs/agentbrowser](https://github.com/anvai-labs/agentbrowser) |
 | `inferflux` | `inferfluxd` (C++ LLM inference server) + `inferctl` (operator CLI) | macOS arm64, Linux x86_64, Linux arm64 | [anvai-labs/inferflux](https://github.com/anvai-labs/inferflux) |
 | `dq-kernel` | `dq-kernel` + `dq-validate`, with pinned Spark/PyDeequ dependencies | macOS 14+ arm64, Linux x86_64 | [anvai-labs/dq-kernel](https://github.com/anvai-labs/dq-kernel) |

@@ -23,7 +23,7 @@ class Victor < Formula
   #   tools/gen-victor-resources.py  (see its header for the recipe)
   # after a major victor bump that moves its dependency constraints.
   # sandhi-gateway ships no macOS-intel wheel, so victor targets macOS arm64
-  # and Linux x86_64, like the rest of this tap.
+  # and Linux x86_64 (platform coverage is per-formula in this tap).
   #
   # Only victor-ai's base install ships here, matching upstream's tested
   # default (`pip install victor-ai`): the extras stay out on purpose —
