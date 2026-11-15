@@ -12,11 +12,11 @@ class Sandhi < Formula
   # build from source. Versions are literal so brew detects them from the URL;
   # the Update Sandhi Formula workflow rewrites them plus the sha256 lines.
   if OS.mac? && Hardware::CPU.arm64?
-    url "https://github.com/anvai-labs/sandhi/releases/download/v0.16.2/sandhi-proxy-v0.16.2-aarch64-apple-darwin.tar.gz"
-    sha256 "56a3ea8947ed96c256ee66e50c983b35f8f6dfa86aeb0ecf1fd3747f34285e64"
+    url "https://github.com/anvai-labs/sandhi/releases/download/v0.19.0/sandhi-proxy-v0.19.0-aarch64-apple-darwin.tar.gz"
+    sha256 "871c0110e810244e07532a601a22c09b492dd2d28dfbe135cfb8c337b57a13d3"
   elsif OS.linux? && Hardware::CPU.intel?
-    url "https://github.com/anvai-labs/sandhi/releases/download/v0.16.2/sandhi-proxy-v0.16.2-x86_64-unknown-linux-gnu.tar.gz"
-    sha256 "ad06837d79f15f6c5f7e4c8652f95e6ce1993ea3776479396ae53bebbb103594"
+    url "https://github.com/anvai-labs/sandhi/releases/download/v0.19.0/sandhi-proxy-v0.19.0-x86_64-unknown-linux-gnu.tar.gz"
+    sha256 "ceaf4d8c17483a20f967fd1e2fc8c98623ffd7af1eded29574ebfed27b23b5d6"
   end
 
   livecheck do
@@ -32,9 +32,12 @@ class Sandhi < Formula
   service do
     run [opt_bin/"sandhi-proxy"]
     # `environment_variables`, not `environment` — Homebrew 6 renamed the DSL.
-    environment_variables "SANDHI_BIND"        => "127.0.0.1:8787",
-                          "SANDHI_STORE"       => var/"sandhi/usage.db",
-                          "SANDHI_OIDC_CONFIG" => etc/"sandhi/oidc.json"
+    # Since 0.18.0 authenticated listeners refuse plaintext; the loopback-only
+    # HTTP exception is explicit (never admits wildcard/LAN sockets).
+    environment_variables "SANDHI_BIND"                => "127.0.0.1:8787",
+                          "SANDHI_ALLOW_LOOPBACK_HTTP" => "1",
+                          "SANDHI_STORE"               => var/"sandhi/usage.db",
+                          "SANDHI_OIDC_CONFIG"         => etc/"sandhi/oidc.json"
 
     keep_alive true
     log_path var/"log/sandhi-proxy.log"
@@ -46,6 +49,10 @@ class Sandhi < Formula
       Sandhi defaults to OIDC SSO and requires identity configuration before startup.
       Before starting the service, create a private #{etc}/sandhi/oidc.json using:
         https://github.com/anvai-labs/sandhi/blob/main/docs/operator/oidc-sso.md
+      Since 0.18.0 authenticated listeners require TLS; this service uses the explicit
+      loopback-only HTTP exception (SANDHI_ALLOW_LOOPBACK_HTTP=1 on 127.0.0.1:8787).
+      LAN or wildcard plaintext is refused regardless. Configure listener TLS via
+      SANDHI_CONFIG (tls.cert/tls.key) to serve beyond the loopback exception.
       Provider credentials and existing usage databases are not migrated automatically.
     EOS
   end
