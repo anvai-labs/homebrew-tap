@@ -129,6 +129,39 @@ class VictorResourceClosureTests(unittest.TestCase):
             "regenerate with tools/gen-victor-resources.py",
         )
 
+    def test_manifest_records_exactly_the_wheels_the_formula_ships(self):
+        # emit() installs the pure wheel alone whenever one exists, so the
+        # manifest must record (and digest) only wheels an install can fetch:
+        # no dead per-platform entries for pure-preferred packages, and no
+        # resource url without a digest (or vice versa).
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        with_dead_buckets = sorted(
+            name for name, entry in manifest.items()
+            if not name.startswith("_") and "pure" in entry
+            and set(entry) - {"version", "pure"}
+        )
+        self.assertEqual(
+            with_dead_buckets,
+            [],
+            "manifest records platform picks for pure-preferred packages that "
+            "emit() never ships; regenerate with tools/gen-victor-resources.py",
+        )
+        formula_urls = set(
+            re.findall(r'^\s*url "([^"]+)"', FORMULA.read_text(encoding="utf-8"), re.MULTILINE)
+        )
+        formula_urls.discard(formula_field("url"))  # the victor-ai sdist is not a resource wheel
+        digest_urls = set(manifest["_digests"])
+        self.assertEqual(
+            digest_urls - formula_urls,
+            set(),
+            "_digests contains urls no formula resource fetches (dead manifest weight)",
+        )
+        self.assertEqual(
+            formula_urls - digest_urls,
+            set(),
+            "formula resource urls missing from _digests",
+        )
+
     def test_manifest_covers_sdist_build_requirements(self):
         # pip installs the sdist with build isolation disabled, so its PEP 517
         # build requirements must be vendored as resources too.

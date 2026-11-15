@@ -214,11 +214,18 @@ def main() -> int:
                 digests = manifest.setdefault("_digests", {})
                 digests[chosen["url"]] = sha256_of(real)
                 picks[bucket] = {"project": re.sub(r"[-_.]+", "-", name).lower(), "url": chosen["url"], "filename": chosen["filename"]}
+                if bucket == "pure":
+                    # emit() installs the pure wheel alone whenever one exists;
+                    # recording platform picks for it would be dead manifest
+                    # weight (wheels no install ever fetches).
+                    break
         if not picks:
             print(f"ERROR: no usable wheel for {name} {version}", file=sys.stderr)
             return 1
         missing = [b for b in BUCKETS if b not in picks]
-        if missing:
+        if missing and "pure" not in picks:
+            # pure wheels serve every platform; only platform-picked packages
+            # can have a real coverage gap worth noting.
             print(f"note: {name} {version} has no wheel for {missing}", file=sys.stderr)
         manifest[name] = {"version": version, **{b: p["filename"] for b, p in picks.items()}}
         picks_by_name.append((name, picks))
